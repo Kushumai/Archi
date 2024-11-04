@@ -21,7 +21,7 @@ services:
   # Service Frontend (React.js)
   frontend:
     build:
-      context: ../frontend
+      context: ./frontend
       dockerfile: Dockerfile.prod   # Utilise Dockerfile.prod pour le frontend
     ports:
       - "80:80"                    # Expose le frontend sur le port 80

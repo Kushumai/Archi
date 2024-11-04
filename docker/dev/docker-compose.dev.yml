@@ -2,13 +2,13 @@ services:
   # Service Backend (NestJS)
   backend:
     build:
-      context: ../backend
-      dockerfile: Dockerfile.dev    # Utilise le Dockerfile.dev pour le backend
+      context: /Users/clementassurly/development/Archi/backend
+      dockerfile: /Users/clementassurly/development/Archi/docker/dev/Dockerfile.backend   # Utilise le Dockerfile.dev pour le backend
     ports:
       - "3000:3000"                # Expose le port 3000 pour le backend
     volumes:
-      - ../backend:/app             # Monte le code local pour activer le hot-reloading
-      - /app/node_modules           # Évite de monter les node_modules localement
+      - /Users/clementassurly/development/Archi/backend:/backend            # Monte le code local pour activer le hot-reloading
+      - /Users/clementassurly/development/Archi/backend/node_modules:/backend/node_modules         # Évite de monter les node_modules localement
     environment:
       NODE_ENV: development         # Mode développement
       DATABASE_HOST: postgres       # Configuration pour PostgreSQL
@@ -24,13 +24,13 @@ services:
   # Service Frontend (React.js)
   frontend:
     build:
-      context: ../frontend
-      dockerfile: Dockerfile.dev    # Utilise le Dockerfile.dev pour le frontend
+      context: /Users/clementassurly/development/Archi/frontend
+      dockerfile: /Users/clementassurly/development/Archi/docker/dev/Dockerfile.frontend    # Utilise le Dockerfile.dev pour le frontend
     ports:
       - "3001:3001"                # Expose le port 3001 pour le frontend
     volumes:
-      - ../frontend:/app            # Monte le code local pour activer le hot-reloading
-      - /app/node_modules           # Évite de monter les node_modules localement
+      - /Users/clementassurly/development/Archi/frontend:/frontend          # Monte le code local pour activer le hot-reloading
+      - /Users/clementassurly/development/Archi/frontend/node_modules:/frontend/node_modules          # Évite de monter les node_modules localement
     environment:
       NODE_ENV: development         # Mode développement
     depends_on:
