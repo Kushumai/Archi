@@ -1,0 +1,58 @@
+services:
+  # Service Backend (NestJS)
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.prod   # Utilise Dockerfile.prod pour le backend
+    ports:
+      - "3000:3000"                # Expose le port 3000 pour le backend
+    environment:
+      NODE_ENV: production         # Définit l'environnement à production
+      DATABASE_HOST: postgres       # Adresse du service PostgreSQL
+      DATABASE_PORT: 5432
+      DATABASE_USER: user
+      DATABASE_PASSWORD: securepassword123
+      DATABASE_NAME: prod_db
+      MONGO_URI: mongodb://mongo:27017/prod_db  # URI de connexion MongoDB pour la production
+    depends_on:
+      - postgres                    # Assure que PostgreSQL est démarré avant le backend
+      - mongo                       # Assure que MongoDB est démarré avant le backend
+
+  # Service Frontend (React.js)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.prod   # Utilise Dockerfile.prod pour le frontend
+    ports:
+      - "80:80"                    # Expose le frontend sur le port 80
+    environment:
+      NODE_ENV: production         # Définit l'environnement à production
+    depends_on:
+      - backend                     # Assure que le backend est démarré avant le frontend
+
+  # Service PostgreSQL
+  postgres:
+    image: postgres:13              # Utilise l'image officielle PostgreSQL
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: prod_db           # Base de données pour l'environnement de production
+    ports:
+      - "5432:5432"                 # Expose le port PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Volume pour la persistance des données
+
+  # Service MongoDB
+  mongo:
+    image: mongo:5                  # Utilise l'image MongoDB officielle (version 5)
+    ports:
+      - "27017:27017"               # Expose le port MongoDB
+    volumes:
+      - mongo_data:/data/db         # Volume pour la persistance des données
+    environment:
+      MONGO_INITDB_DATABASE: prod_db # Initialise la base de données MongoDB
+
+# Volumes pour persistance des données
+volumes:
+  postgres_data: {}
+  mongo_data: {}

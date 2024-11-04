@@ -1,0 +1,64 @@
+services:
+  # Service Backend (NestJS)
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev    # Utilise le Dockerfile.dev pour le backend
+    ports:
+      - "3000:3000"                # Expose le port 3000 pour le backend
+    volumes:
+      - ../backend:/app             # Monte le code local pour activer le hot-reloading
+      - /app/node_modules           # Évite de monter les node_modules localement
+    environment:
+      NODE_ENV: development         # Mode développement
+      DATABASE_HOST: postgres       # Configuration pour PostgreSQL
+      DATABASE_PORT: 5432
+      DATABASE_USER: user
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: dev_db
+      MONGO_URI: mongodb://mongo:27017/dev_db  # Configuration pour MongoDB
+    depends_on:
+      - postgres                    # Assure que PostgreSQL est démarré avant le backend
+      - mongo                       # Assure que MongoDB est démarré avant le backend
+
+  # Service Frontend (React.js)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.dev    # Utilise le Dockerfile.dev pour le frontend
+    ports:
+      - "3001:3001"                # Expose le port 3001 pour le frontend
+    volumes:
+      - ../frontend:/app            # Monte le code local pour activer le hot-reloading
+      - /app/node_modules           # Évite de monter les node_modules localement
+    environment:
+      NODE_ENV: development         # Mode développement
+    depends_on:
+      - backend                     # Assure que le backend est démarré avant le frontend
+
+  # Service PostgreSQL
+  postgres:
+    image: postgres:13              # Utilise l'image officielle PostgreSQL
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev_db           # Base de données pour l'environnement de développement
+    ports:
+      - "5432:5432"                 # Expose le port PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Volume pour la persistance des données
+
+  # Service MongoDB
+  mongo:
+    image: mongo:5                  # Utilise l'image MongoDB officielle (version 5)
+    ports:
+      - "27017:27017"               # Expose le port MongoDB
+    volumes:
+      - mongo_data:/data/db         # Volume pour la persistance des données
+    environment:
+      MONGO_INITDB_DATABASE: dev_db # Initialisation de la base de données MongoDB
+
+# Volumes pour persistance des données
+volumes:
+  postgres_data: {}
+  mongo_data: {}
