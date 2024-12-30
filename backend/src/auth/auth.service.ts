@@ -12,9 +12,9 @@ export class AuthService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-    async findByEmail(email: string): Promise<User | undefined> {
-      return this.userRepository.findOne({ where: { email } });
-    }
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { email } });
+  }
 
   async hashPassword(password: string): Promise<string> {
     return await argon2.hash(password);
