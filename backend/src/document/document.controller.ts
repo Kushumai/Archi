@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {  BadRequestException, Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
 import { DocumentService } from './document.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
 
-@Controller('document')
+@Controller('document') // Base URL : /document
 export class DocumentController {
   constructor(private readonly documentService: DocumentService) {}
 
@@ -19,16 +19,17 @@ export class DocumentController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.documentService.findOne(+id);
+    return this.documentService.findOne(id);
   }
+  
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDocumentDto: UpdateDocumentDto) {
-    return this.documentService.update(+id, updateDocumentDto);
+    return this.documentService.update(id, updateDocumentDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.documentService.remove(+id);
+    return this.documentService.remove(id);
   }
 }

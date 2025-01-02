@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule } from './database/database.module';
 import { EncryptionModule } from './encryption/encryption.module';
 import { DocumentModule } from './document/document.module';
@@ -16,6 +17,8 @@ import { join } from 'path';
     ConfigModule.forRoot({
       isGlobal:true
     }),
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/dev_db',
+    ),
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
         type: 'postgres',
