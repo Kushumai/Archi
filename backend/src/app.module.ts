@@ -17,7 +17,7 @@ import { join } from 'path';
     ConfigModule.forRoot({
       isGlobal:true
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/dev_db',
+    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/mg_archi_db',
     ),
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
@@ -26,7 +26,7 @@ import { join } from 'path';
         port: parseInt(process.env.DATABASE_PORT || '5432', 10),
         username: process.env.DATABASE_USER || 'postgres',
         password: process.env.DATABASE_PASSWORD || 'password',
-        database: process.env.DATABASE_NAME || 'dev_db',
+        database: process.env.DATABASE_NAME || 'psql_archi_db',
         entities: [join(__dirname, '**', '*.entity{.js,.ts}')],
         autoLoadEntities: true,
         synchronize: true,
