@@ -1,10 +1,12 @@
+
+
+
 services:
   # Service Backend (NestJS)
   backend:
     build:
       context: ../../backend
       dockerfile: ../docker/dev/Dockerfile.backend
-      # dockerfile: ./../../Dockerfile.backend
     ports:
       - "3000:3000"
     volumes:
@@ -14,15 +16,12 @@ services:
       - ../../backend/.env
     environment:
       NODE_ENV: development
-    #   DATABASE_HOST: postgres
-    #   DATABASE_PORT: 5432
-    #   DATABASE_USER: user
-    #   DATABASE_PASSWORD: password
-    #   DATABASE_NAME: psql_archi_db
-    #   MONGO_URI: mongodb://mongo:27017/mg_archi_db
     depends_on:
       - postgres
       - mongo
+    networks:
+    - dev_net
+    container_name: archi_backend_dev
 
   # Service Frontend (React.js)
   frontend:
@@ -33,12 +32,15 @@ services:
       - "3001:3001"
     volumes:
       - ../../frontend:/frontend
-#      - ../../frontend/node_modules:/frontend/node_modules
+#      - frontend/node_modules:/frontend/node_modules
     environment:
       NODE_ENV: development
       PORT: 3001
     depends_on:
       - backend
+    networks:
+    - dev_net
+    container_name: archi_frontend_dev
 
   # Service PostgreSQL
   postgres:
@@ -51,6 +53,9 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+    - dev_net
+    container_name: archi_postgres_dev
 
   # Service MongoDB
   mongo:
@@ -61,6 +66,9 @@ services:
       - mongo_data:/data/db
     environment:
       MONGO_INITDB_DATABASE: mg_archi_db
+    networks:
+    - dev_net
+    container_name: archi_mongo_dev
 
 volumes:
   backend_node_modules: {}

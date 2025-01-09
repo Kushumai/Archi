@@ -1,58 +1,68 @@
+networks:
+  prod_net: {}
+
 services:
-  # Service Backend (NestJS)
+  # Backend (NestJS)
   backend:
     build:
-      context: ../backend
-      dockerfile: Dockerfile.prod   # Utilise Dockerfile.prod pour le backend
+      context: ../../backend
+      dockerfile: ../docker/prod/Dockerfile.backend
     ports:
-      - "3000:3000"                # Expose le port 3000 pour le backend
+      - "3000:3000"
+    env_file:
+      - ../../backend/.env
     environment:
-      NODE_ENV: production         # Définit l'environnement à production
-      DATABASE_HOST: postgres       # Adresse du service PostgreSQL
-      DATABASE_PORT: 5432
-      DATABASE_USER: user
-      DATABASE_PASSWORD: securepassword123
-      DATABASE_NAME: prod_db
-      MONGO_URI: mongodb://mongo:27017/prod_db  # URI de connexion MongoDB pour la production
+      NODE_ENV: production
     depends_on:
-      - postgres                    # Assure que PostgreSQL est démarré avant le backend
-      - mongo                       # Assure que MongoDB est démarré avant le backend
+      - postgres
+      - mongo
+    networks:
+    - prod_net
+    container_name: archi_backend_prod
 
-  # Service Frontend (React.js)
+  # Frontend (React.js)
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod   # Utilise Dockerfile.prod pour le frontend
+      context: ../../frontend
+      dockerfile: ../docker/prod/Dockerfile.frontend
     ports:
-      - "80:80"                    # Expose le frontend sur le port 80
+      - "80:80"
     environment:
-      NODE_ENV: production         # Définit l'environnement à production
+      NODE_ENV: production
     depends_on:
-      - backend                     # Assure que le backend est démarré avant le frontend
+      - backend
+    networks:
+    - prod_net
+    container_name: archi_frontend_prod
 
-  # Service PostgreSQL
+  # PostgreSQL
   postgres:
-    image: postgres:13              # Utilise l'image officielle PostgreSQL
+    image: postgres:13
     environment:
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: securepassword123
-      POSTGRES_DB: prod_db           # Base de données pour l'environnement de production
-    ports:
-      - "5432:5432"                 # Expose le port PostgreSQL
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: psql_archi_db
+    # ports:
+    #   - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Volume pour la persistance des données
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+    - prod_net
+    container_name: archi_postgres_prod
 
-  # Service MongoDB
+  # MongoDB
   mongo:
-    image: mongo:5                  # Utilise l'image MongoDB officielle (version 5)
-    ports:
-      - "27017:27017"               # Expose le port MongoDB
+    image: mongo:5
+    # ports:
+    #   - "27017:27017"
     volumes:
-      - mongo_data:/data/db         # Volume pour la persistance des données
+      - mongo_data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: prod_db # Initialise la base de données MongoDB
+      MONGO_INITDB_DATABASE: mg_archi_db
+    networks:
+    - prod_net
+    container_name: archi_mongo_prod
 
-# Volumes pour persistance des données
 volumes:
   postgres_data: {}
   mongo_data: {}
