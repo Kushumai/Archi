@@ -1,8 +1,8 @@
-
-
+networks:
+  dev_net: {}
 
 services:
-  # Service Backend (NestJS)
+  # Backend (NestJS)
   backend:
     build:
       context: ../../backend
@@ -23,7 +23,7 @@ services:
     - dev_net
     container_name: archi_backend_dev
 
-  # Service Frontend (React.js)
+  # Frontend (React.js)
   frontend:
     build:
       context: ../../frontend
@@ -32,7 +32,7 @@ services:
       - "3001:3001"
     volumes:
       - ../../frontend:/frontend
-#      - frontend/node_modules:/frontend/node_modules
+    #  - frontend/node_modules:/frontend/node_modules
     environment:
       NODE_ENV: development
       PORT: 3001
@@ -42,7 +42,7 @@ services:
     - dev_net
     container_name: archi_frontend_dev
 
-  # Service PostgreSQL
+  # PostgreSQL
   postgres:
     image: postgres:13
     environment:
@@ -57,7 +57,7 @@ services:
     - dev_net
     container_name: archi_postgres_dev
 
-  # Service MongoDB
+  # MongoDB
   mongo:
     image: mongo:5
     ports:
@@ -69,6 +69,20 @@ services:
     networks:
     - dev_net
     container_name: archi_mongo_dev
+
+  # Nginx
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ../../nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - dev_net
+    container_name: archi_nginx_dev
 
 volumes:
   backend_node_modules: {}

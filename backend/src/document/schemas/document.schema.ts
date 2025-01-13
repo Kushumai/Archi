@@ -1,8 +1,8 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document as MongooseDocument } from 'mongoose';
 
 @Schema()
-export class DocumentEntity extends Document {
+export class DocumentEntity {
   @Prop({ required: true })
   title!: string;
 
@@ -16,4 +16,5 @@ export class DocumentEntity extends Document {
   updatedAt!: Date;
 }
 
+export type DocumentModel = DocumentEntity & MongooseDocument;
 export const DocumentSchema = SchemaFactory.createForClass(DocumentEntity);
