@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { DocumentService } from './document.service';
+import { DocumentService } from '../document.service';
 import { getModelToken } from '@nestjs/mongoose';
-import { DocumentEntity, DocumentModel } from './schemas/document.schema';
+import { DocumentEntity, DocumentModel } from '../schemas/document.schema';
 
 describe('DocumentService', () => {
   let service: DocumentService;
