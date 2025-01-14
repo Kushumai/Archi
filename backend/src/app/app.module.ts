@@ -8,11 +8,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule } from './database/database.module';
 import { EncryptionModule } from './encryption/encryption.module';
 import { DocumentModule } from './document/document.module';
-import { UserModule } from './user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { CommonModule } from './common/common.module';
 import { join } from 'path';
+import { LoggerService } from './logger.service';
 
 @Module({
+  providers: [LoggerService],
+  exports: [LoggerService],
   imports: [
     ConfigModule.forRoot({
       isGlobal:true
