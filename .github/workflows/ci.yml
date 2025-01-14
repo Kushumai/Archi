@@ -1,7 +1,15 @@
 name: CI/CD Pipeline
 
+permissions:
+  contents: read
+  id-token: write
+
 on:
   push:
+    branches:
+      - main
+      - dev
+  pull_request:
     branches:
       - main
       - dev
