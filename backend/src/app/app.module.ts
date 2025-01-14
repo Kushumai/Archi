@@ -3,18 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from '../modules/auth/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseModule } from './database/database.module';
-import { EncryptionModule } from './encryption/encryption.module';
-import { DocumentModule } from './document/document.module';
-import { UserModule } from './modules/user/user.module';
-import { CommonModule } from './common/common.module';
+import { DatabaseModule } from '../database/database.module';
+import { EncryptionModule } from '../encryption/encryption.module';
+import { DocumentModule } from '../modules/document/document.module';
+import { UserModule } from '../modules/user/user.module';
+import { CommonModule } from '../common/common.module';
 import { join } from 'path';
-import { LoggerService } from './logger.service';
+import { LoggerService } from '../core/logger.service';
 
 @Module({
-  providers: [LoggerService],
+  providers: [LoggerService, AppService],
   exports: [LoggerService],
   imports: [
     ConfigModule.forRoot({
@@ -44,6 +44,5 @@ import { LoggerService } from './logger.service';
     EncryptionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
