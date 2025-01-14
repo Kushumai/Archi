@@ -20,6 +20,22 @@ services:
     - prod_net
     container_name: archi_backend_prod
 
+  #Auth-service
+  auth-service:
+    build:
+      context: ../../auth-service
+      dockerfile: ../docker/prod/Dockerfile.authservice
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - FRONTEND_DEV_URL=http://archi_frontend_prod:3001
+    networks:
+      - prod_net
+    container_name: archi_auth_service_prod
+
+
+
   # Frontend (React.js)
   frontend:
     build:

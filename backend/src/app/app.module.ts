@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from '../modules/auth/auth.module';
+// import { AuthModule } from '../../../auth-service/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule } from '../database/database.module';
 import { EncryptionModule } from '../encryption/encryption.module';
@@ -12,6 +12,8 @@ import { UserModule } from '../modules/user/user.module';
 import { CommonModule } from '../common/common.module';
 import { join } from 'path';
 import { LoggerService } from '../core/logger.service';
+// import { APP_GUARD } from '@nestjs/core';
+// import { JwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   providers: [LoggerService, AppService],
@@ -36,7 +38,7 @@ import { LoggerService } from '../core/logger.service';
         logging: true,
       }),
     }),
-    AuthModule,
+    // AuthModule,
     UserModule,
     DocumentModule,
     DatabaseModule,

@@ -23,6 +23,20 @@ services:
     - dev_net
     container_name: archi_backend_dev
 
+  #Auth-service
+  auth-service:
+    build:
+      context: ../../auth-service
+      dockerfile: ../docker/dev/Dockerfile.authservice
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=development
+      - FRONTEND_DEV_URL=http://archi_frontend_dev:3001
+    networks:
+      - dev_net
+    container_name: archi_auth_service_dev
+
   # Frontend (React.js)
   frontend:
     build:
