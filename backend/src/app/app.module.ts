@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-// import { AuthModule } from '../../../auth-service/auth.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DatabaseModule } from '../database/database.module';
 import { EncryptionModule } from '../encryption/encryption.module';
@@ -12,17 +11,17 @@ import { UserModule } from '../modules/user/user.module';
 import { CommonModule } from '../common/common.module';
 import { join } from 'path';
 import { LoggerService } from '../core/logger.service';
-// import { APP_GUARD } from '@nestjs/core';
-// import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  providers: [LoggerService, AppService],
-  exports: [LoggerService],
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true
+      isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://mongo:27017/mg_archi_db',
+    MongooseModule.forRoot(
+      process.env.MONGO_URI || 'mongodb://mongo:27017/mg_archi_db',
     ),
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
@@ -38,7 +37,14 @@ import { LoggerService } from '../core/logger.service';
         logging: true,
       }),
     }),
-    // AuthModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET') || 'your-secret-key',
+        signOptions: { expiresIn: '1h' },
+      }),
+      inject: [ConfigService],
+    }),
     UserModule,
     DocumentModule,
     DatabaseModule,
@@ -46,5 +52,14 @@ import { LoggerService } from '../core/logger.service';
     EncryptionModule,
   ],
   controllers: [AppController],
+  providers: [
+    LoggerService,
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
+  exports: [LoggerService],
 })
 export class AppModule {}

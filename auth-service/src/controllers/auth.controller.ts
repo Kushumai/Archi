@@ -1,26 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
-import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { Public } from '../decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
   @Public()
   @Post('login')
-  login(@Body() loginDto: any) {
-    return { message: 'Login successful!' };
+  async login(@Body() loginDto: LoginDto) {
+    console.log('Received login request:', loginDto);
+    const token = await this.authService.login(loginDto);
+    return token;
   }
 
   @Public()
   @Post('register')
-  register(@Body() registerDto: any) {
-    return { message: 'User registered successfully!' };
-  }
-
-  @Get('protected')
-  getProtectedData() {
-    return { message: 'You have accessed protected data!' };
+  async register(@Body() registerDto: RegisterDto) {
+    const result = await this.authService.register(registerDto);
+    return result;
   }
 }

@@ -15,12 +15,15 @@ services:
     env_file:
       - ../../backend/.env
     environment:
-      NODE_ENV: development
+    - NODE_ENV=development
+    - JWT_SECRET=your-secret-key
     depends_on:
       - postgres
       - mongo
     networks:
-    - dev_net
+      dev_net:
+        aliases:
+          - backend
     container_name: archi_backend_dev
 
   #Auth-service
@@ -29,12 +32,15 @@ services:
       context: ../../auth-service
       dockerfile: ../docker/dev/Dockerfile.authservice
     ports:
-      - "3002:3000"
+      - "3002:3002"
     environment:
+      - JWT_SECRET=your-secret-key
       - NODE_ENV=development
       - FRONTEND_DEV_URL=http://archi_frontend_dev:3001
     networks:
-      - dev_net
+      dev_net:
+        aliases:
+          - auth-service
     container_name: archi_auth_service_dev
 
   # Frontend (React.js)
@@ -48,8 +54,10 @@ services:
       - ../../frontend:/frontend
     #  - frontend/node_modules:/frontend/node_modules
     environment:
-      NODE_ENV: development
-      PORT: 3001
+    - PORT=3001
+    - NODE_ENV=development
+    - JWT_SECRET=your-secret-key
+    - FRONTEND_DEV_URL=http://archi_frontend_dev:3001
     depends_on:
       - backend
     networks:

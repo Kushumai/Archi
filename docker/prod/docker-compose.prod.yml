@@ -26,7 +26,7 @@ services:
       context: ../../auth-service
       dockerfile: ../docker/prod/Dockerfile.authservice
     ports:
-      - "3002:3000"
+      - "3002:3002"
     environment:
       - NODE_ENV=production
       - FRONTEND_DEV_URL=http://archi_frontend_prod:3001
@@ -42,7 +42,7 @@ services:
       context: ../../frontend
       dockerfile: ../docker/prod/Dockerfile.frontend
     ports:
-      - "80:80"
+      - "3001:3001"
     environment:
       NODE_ENV: production
     depends_on:
@@ -67,6 +67,8 @@ services:
   # MongoDB
   mongo:
     image: mongo:5
+    ports:
+     - "27017:27017"
     volumes:
       - mongo_data:/data/db
     environment:

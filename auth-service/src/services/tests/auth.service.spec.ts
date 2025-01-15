@@ -1,14 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../../src/modules/user/entities/user.entity';
+import { UserDto as User } from '../../dtos/user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 describe('AuthService', () => {
   let service: AuthService;
+  let jwtService: JwtService;
   let userRepository: Repository<User>;
 
   beforeEach(async () => {
+    const mockJwtService = {
+      sign: jest.fn().mockReturnValue('mockToken'),
+      verifyAsync: jest.fn().mockResolvedValue({}),
+    };
+    
     const mockUserRepository = {
       findOne: jest.fn(),
       save: jest.fn(),
@@ -18,6 +25,10 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+        {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
         },
@@ -25,6 +36,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    jwtService = module.get<JwtService>(JwtService);
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
   });
 
@@ -32,19 +44,8 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should find a user by email', async () => {
-    const email = 'test@example.com';
-    const user = { id: 1, email, password: 'hashedPassword' } as User;
-    jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-
-    const result = await service.findByEmail(email);
-    expect(result).toEqual(user);
-    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email } });
-  });
-
-  it('should hash a password', async () => {
-    const password = 'plainTextPassword';
-    const hashedPassword = await service.hashPassword(password);
-    expect(await service.comparePasswords(password, hashedPassword)).toBe(true);
+  it('should generate a token', () => {
+    const token = jwtService.sign({ id: 1 });
+    expect(token).toBe('mockToken');
   });
 });

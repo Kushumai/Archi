@@ -1,45 +1,58 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, InternalServerErrorException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  password: string;
-}
+import axios, { AxiosError } from 'axios';
 
 @Injectable()
 export class AuthService {
-  private users: User[] = [];
-
   constructor(private readonly jwtService: JwtService) {}
 
-  async login(loginDto: LoginDto) {
-    const user = this.users.find((u) => u.email === loginDto.email);
-    if (!user || user.password !== loginDto.password) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(loginDto: LoginDto): Promise<{ accessToken: string }> {
+    const { username, password } = loginDto;
 
-    const payload = { username: user.username, sub: user.id };
-    return {
-      accessToken: this.jwtService.sign(payload),
-    };
+    try {
+
+      const response = await axios.post('http://archi_backend_dev:3000/api/user/validate', {
+        username,
+        password,
+      });
+
+      const { isValid, userId } = response.data;
+
+      if (!isValid) {
+
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const payload = { userId, username };
+      console.log('>> process.env.JWT_SECRET =', process.env.JWT_SECRET);
+      console.log('>> Fallback =', 'your-secret-key');
+      const accessToken = this.jwtService.sign(payload, {
+        secret: process.env.JWT_SECRET || 'your-secret-key',
+        expiresIn: '1h',
+      });
+      console.log('>> JWT_SECRET (auth-service) =', process.env.JWT_SECRET);
+
+      return { accessToken };
+
+    } catch (error) {
+
+      console.error('Erreur dans AuthService.login:', (error as Error).message);
+
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response && axiosError.response.status === 401) {
+          throw new UnauthorizedException('Invalid credentials (from backend)');
+        }
+      }
+
+      throw new InternalServerErrorException('Internal error during login');
+    }
   }
 
   async register(registerDto: RegisterDto) {
-    const userExists = this.users.find((u) => u.email === registerDto.email);
-    if (userExists) {
-      throw new UnauthorizedException('User already exists');
-    }
-
-    const newUser = {
-      id: this.users.length + 1,
-      ...registerDto,
-    };
-
-    this.users.push(newUser);
-    return { message: 'User registered successfully', user: newUser };
+    const response = await axios.post('http://archi_backend_dev:3000/api/user/register', registerDto);
+    return response.data;
   }
 }

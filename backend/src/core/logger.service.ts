@@ -7,7 +7,10 @@ export class LoggerService {
     level: 'info',
     format: format.combine(
       format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-      format.printf(({ timestamp, level, message }) => `${timestamp} [${level}] ${message}`),
+      format.printf((info: any) => {
+        const { timestamp, level, message } = info; // Pas besoin de forcer le typage ici
+        return `${timestamp} [${level}] ${message}`;
+      }),
     ),
     transports: [
       new transports.Console(),
