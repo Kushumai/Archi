@@ -20,9 +20,9 @@ logsprod:
 	$(COMPOSE_PROD) logs -f
 
 rdev:
-	down-dev up-dev
+	downdev updev
 rprod:
-	down-prod up-prod
+	downprod upprod
 
 clean:
 	docker system prune -af

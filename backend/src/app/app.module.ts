@@ -4,15 +4,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { DatabaseModule } from '../database/database.module';
-import { EncryptionModule } from '../encryption/encryption.module';
+import { DatabaseModule } from '../shared/database/database.module';
+import { EncryptionModule } from '../shared/encryption/encryption.module';
 import { DocumentModule } from '../modules/document/document.module';
 import { UserModule } from '../modules/user/user.module';
-import { CommonModule } from '../common/common.module';
 import { join } from 'path';
-import { LoggerService } from '../core/logger.service';
+import { LoggerService } from '../shared/utils/logger.service';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -48,7 +47,6 @@ import { JwtModule } from '@nestjs/jwt';
     UserModule,
     DocumentModule,
     DatabaseModule,
-    CommonModule,
     EncryptionModule,
   ],
   controllers: [AppController],

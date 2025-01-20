@@ -2,7 +2,7 @@ import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
-import { Public } from '../../decorators/public.decorator';
+import { Public } from '../../shared/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
