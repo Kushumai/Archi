@@ -13,6 +13,8 @@ import { LoggerService } from '../shared/utils/logger.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { getEntitiesPath, getMigrationsPath } from '../shared/utils/path-helper';
+const isLocal = process.env.NODE_ENV !== 'production';
 
 @Module({
   imports: [
@@ -25,14 +27,15 @@ import { JwtModule } from '@nestjs/jwt';
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
         type: 'postgres',
-        host: process.env.DATABASE_HOST || 'postgres',
+        host: process.env.DATABASE_HOST || 'localhost',
         port: parseInt(process.env.DATABASE_PORT || '5432', 10),
-        username: process.env.DATABASE_USER || 'user',
+        username: process.env.DATABASE_USER || 'archiadmin',
         password: process.env.DATABASE_PASSWORD || 'password',
         database: process.env.DATABASE_NAME || 'psql_archi_db',
-        entities: [join(__dirname, '**', '*.entity{.js,.ts}')],
+        entities: getEntitiesPath(process.env.NODE_ENV !== 'production'),
+        migrations: getMigrationsPath(isLocal),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: false,
         logging: true,
       }),
     }),

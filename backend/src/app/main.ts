@@ -1,11 +1,21 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { AppDataSource } from '../shared/database/data-source';
 import { ValidationPipe } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { DataSource } from 'typeorm';
 
 async function bootstrap() {
+
+  try {
+    await AppDataSource.initialize();
+    console.log('Database connection established');
+  } catch (error) {
+    console.error('Error during Data Source initialization:', error);
+    process.exit(1); // Arrêter l'application si la base de données est inaccessible
+  }
+
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
 

@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsNumber } from 'class-validator';
 
 export class UpdateUserDto {
   @IsString()
@@ -8,4 +8,9 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   password?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  roles?: number[];
 }
