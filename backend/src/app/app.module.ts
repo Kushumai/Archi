@@ -9,11 +9,12 @@ import { EncryptionModule } from '../shared/encryption/encryption.module';
 import { DocumentModule } from '../modules/document/document.module';
 import { UserModule } from '../modules/user/user.module';
 import { join } from 'path';
-import { LoggerService } from '../shared/utils/logger.service';
+import { LoggerService } from '../modules/log/logger.service';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { getEntitiesPath, getMigrationsPath } from '../shared/utils/path-helper';
+
 const isLocal = process.env.NODE_ENV !== 'production';
 
 @Module({
@@ -27,7 +28,7 @@ const isLocal = process.env.NODE_ENV !== 'production';
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
         type: 'postgres',
-        host: process.env.DATABASE_HOST || 'localhost',
+        host: process.env.DATABASE_HOST,
         port: parseInt(process.env.DATABASE_PORT || '5432', 10),
         username: process.env.DATABASE_USER || 'archiadmin',
         password: process.env.DATABASE_PASSWORD || 'password',

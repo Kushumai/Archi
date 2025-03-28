@@ -29,3 +29,5 @@ clean:
 
 status:
 	docker ps -a
+migration:
+	npx typeorm migration:generate --dataSource src/shared/database/data-source.ts ./src/shared/database/migrations/InitialMigration

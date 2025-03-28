@@ -33,7 +33,14 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   // app.useGlobalGuards(new JwtAuthGuard(reflector, app.get(JwtService)));
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,        // Supprime les propriétés non attendues par le DTO
+      forbidNonWhitelisted: true, // Lève une erreur si une propriété inconnue est reçue
+      transform: true,
+    }),
+  );
+
   app.enableCors({
     origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
