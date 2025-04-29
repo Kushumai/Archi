@@ -1,7 +1,12 @@
+require('dotenv').config();
+
+const { PORT, DATABASE_URL, SECRET_KEY } = process.env;
+if (!DATABASE_URL || !SECRET_KEY) {
+  throw new Error('⚠️  Missing required env vars DATABASE_URL or SECRET_KEY');
+}
+
 module.exports = {
-    SECRET_KEY: process.env.SECRET_KEY || 'dev_secret_key',
-    REFRESH_SECRET_KEY: process.env.REFRESH_SECRET_KEY || 'dev_refresh_secret_key',
-    ACCESS_TOKEN_LIFETIME: '1h',
-    REFRESH_TOKEN_LIFETIME: '7d',
-    PORT: process.env.PORT || 3001,
-  };
+  PORT: Number(PORT) || 3002,
+  DATABASE_URL,
+  SECRET_KEY,
+};
