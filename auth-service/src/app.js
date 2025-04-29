@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const argon2 = require('argon2');
-const { SECRET_KEY, REFRESH_SECRET_KEY, ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME, PORT } = require('./config');
+const { PORT, DATABASE_URL, SECRET_KEY } = require('./config.cjs')
 
 const app = express();
 app.use(cors());
