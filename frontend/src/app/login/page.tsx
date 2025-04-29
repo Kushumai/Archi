@@ -1,12 +1,11 @@
-// frontend/src/app/login/page.tsx
 'use client'
 
-import { useState, useContext, FormEvent } from 'react'
+import { useState, useContext, useEffect, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthContext } from '../../contexts/AuthContext'
 
 export default function LoginPage() {
-  const { login, isAuthenticated } = useContext(AuthContext)
+  const { isAuthenticated, login } = useContext(AuthContext)
   const router = useRouter()
 
   const [email, setEmail] = useState('')
@@ -14,9 +13,15 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Si déjà authentifié, on redirige vers le dashboard
+  // Redirection **dans** useEffect, pas dans le rendu
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard')
+    }
+  }, [isAuthenticated, router])
+
+  // Tant que l’on redirige, on ne rend rien
   if (isAuthenticated) {
-    router.replace('/dashboard')
     return null
   }
 
@@ -26,7 +31,7 @@ export default function LoginPage() {
     setError(null)
     try {
       await login(email, password)
-      // login() redirige normalement vers /dashboard dans le contexte
+      // le router.replace se fera dans le useEffect ci-dessus
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed')
     } finally {
