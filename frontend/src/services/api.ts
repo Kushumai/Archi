@@ -2,21 +2,20 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api',  // Next.js redirigera /api/auth vers votre back
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true, // si vous utilisez cookies httpOnly
+    baseURL: 'http://localhost:3001/api',  // ← l’URL de votre auth-service
+    headers: {
+      'Content-Type': 'application/json',
+    },
 });
 
-// Injecter le token dans l’en-tête Authorization
+// interceptor d’envoi de token
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('accessToken');
-  if (token) {
-    config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 // (Optionnel) Interceptor de réponse pour gérer le refresh token
