@@ -3,7 +3,7 @@
 
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import * as authService from '../services/authService';  // ← importer tout le service
+import * as authService from '../services/authService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -21,13 +21,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
-  // Au montage, charger le token existant
+  // Au montage, on charge l’accessToken s’il existe
   useEffect(() => {
     const stored = localStorage.getItem('accessToken');
-    if (stored) setToken(stored);
+    if (stored) {
+      setToken(stored);
+    }
   }, []);
 
-  // wrapper sur authService.login
+  // Fonction de login qui utilise authService
   const login = async (email: string, password: string) => {
     await authService.login(email, password);
     const newToken = localStorage.getItem('accessToken');
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Fonction de logout
   const logout = () => {
     authService.logout();
     setToken(null);
