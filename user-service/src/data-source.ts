@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
   url: DATABASE_URL,
   synchronize: true,
   logging: false,
-  entities: [],       // on ajoutera vos entités ultérieurement
+  entities: [User],
   migrations: [],
   subscribers: [],
 });
