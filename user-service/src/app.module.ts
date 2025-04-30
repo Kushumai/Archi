@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from './data-source'; // on utilisera cette instance
+import { AppDataSource } from './data-source';
 // Plus tard : import { UserModule } from './user/user.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     // TypeORM via DataSource
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
-        ...DataSource.options,
+        ...AppDataSource.options,
       }),
     }),
+    UsersModule,
     // UserModule ici quand créé
   ],
 })
