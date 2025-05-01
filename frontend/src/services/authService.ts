@@ -6,10 +6,8 @@ interface LoginResponse {
   refreshToken: string;
 }
 
-export async function login(email: string, password: string): Promise<void> {
-  const { data } = await api.post<LoginResponse>('/auth/login', { email, password });
-  localStorage.setItem('accessToken', data.accessToken);
-  localStorage.setItem('refreshToken', data.refreshToken);
+export async function login(email: string, password: string) {
+  return api.post('/auth/login', { email, password });
 }
 
 export async function refreshToken(): Promise<void> {

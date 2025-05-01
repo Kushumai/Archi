@@ -26,24 +26,28 @@ export default function LoginPage() {
   }
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    console.log('💡 handleSubmit called', { email, password });
+    setLoading(true);
+    setError(null);
+  
     try {
-      await login(email, password)
-      // le router.replace se fera dans le useEffect ci-dessus
+      console.log('💡 about to call login()');
+      await login(email, password);
+      console.log('✅ login() resolved');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed')
+      console.error('❌ login() rejected', err);
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div style={{ maxWidth: 400, margin: '2rem auto', padding: '1rem', border: '1px solid #ccc', borderRadius: 4 }}>
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
-        <label>Email</label><br/>
+        <label>Email : test@example.com</label><br/>
         <input
           type="email"
           value={email}
@@ -51,7 +55,7 @@ export default function LoginPage() {
           required
           style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem' }}
         />
-        <label>Password</label><br/>
+        <label>Password password123</label><br/>
         <input
           type="password"
           value={password}

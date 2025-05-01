@@ -1,12 +1,15 @@
-require('dotenv').config();
+// src/config.cjs
+require('dotenv').config({ path: '.env.local' });
 
-const { PORT, DATABASE_URL, SECRET_KEY } = process.env;
+const { DATABASE_URL, SECRET_KEY } = process.env;
 if (!DATABASE_URL || !SECRET_KEY) {
   throw new Error('⚠️  Missing required env vars DATABASE_URL or SECRET_KEY');
 }
 
 module.exports = {
-  PORT: Number(PORT) || 3002,
-  DATABASE_URL,
-  SECRET_KEY,
+  dbUrl: DATABASE_URL,
+  jwtSecret: SECRET_KEY,
+  // TTLs (en secondes)
+  accessTokenTtl: 3600,   // 1h
+  refreshTokenTtl: 7 * 24 * 3600, // 7 jours
 };

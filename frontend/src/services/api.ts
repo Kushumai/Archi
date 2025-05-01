@@ -1,40 +1,69 @@
 // frontend/src/services/api.ts
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:3001/api',  // ← l’URL de votre auth-service
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  baseURL: '/api',          // proxied by Next.js rewrites
+  withCredentials: true,    // sends cookies for refresh token if used
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// interceptor d’envoi de token
-api.interceptors.request.use(config => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+// Refresh token state
+let isRefreshing = false;
+let refreshPromise: Promise<string> | null = null;
+let subscribers: ((token: string) => void)[] = [];
 
-// (Optionnel) Interceptor de réponse pour gérer le refresh token
+function onRefreshed(token: string) {
+  subscribers.forEach(cb => cb(token));
+  subscribers = [];
+}
+
 api.interceptors.response.use(
   response => response,
-  async error => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      // Appel pour rafraîchir le token
-      const { data } = await api.post('/auth/refresh', {
-        refreshToken: localStorage.getItem('refreshToken'),
-      });
-      localStorage.setItem('accessToken', data.accessToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
-      originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
-      return api(originalRequest);
+  async (error: AxiosError) => {
+    const originalReq = error.config as AxiosRequestConfig & { _retry?: boolean };
+
+    // Only handle 401 once per request
+    if (error.response?.status !== 401 || originalReq._retry) {
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
+
+    // Don't retry the refresh endpoint itself
+    if (originalReq.url?.includes('/auth/refresh')) {
+      return Promise.reject(error);
+    }
+
+    originalReq._retry = true;
+
+    // Start refresh once
+    if (!isRefreshing) {
+      isRefreshing = true;
+      refreshPromise = api
+        .post('/auth/refresh')
+        .then(res => {
+          const newToken = res.data.accessToken;
+          api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+          onRefreshed(newToken);
+          isRefreshing = false;
+          return newToken;
+        })
+        .catch(err => {
+          isRefreshing = false;
+          // redirect to login on refresh failure
+          window.location.href = '/login';
+          return Promise.reject(err);
+        });
+    }
+
+    // Wait for refresh to complete, then replay original request
+    return new Promise(resolve => {
+      subscribers.push(token => {
+        if (!originalReq.headers) originalReq.headers = {};
+        (originalReq.headers as any)['Authorization'] = `Bearer ${token}`;
+        resolve(api(originalReq));
+      });
+    });
   }
 );
 
