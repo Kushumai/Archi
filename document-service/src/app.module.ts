@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { DocumentsModule } from './documents/documents.module';
 import { DocumentEntity } from './documents/entities/document.entity';
-import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
+//import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -30,6 +30,6 @@ import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
     }),
   ],
   // si vous aviez besoin de le fournir globalement :
-  providers: [JwtAuthGuard],
+  //providers: [JwtAuthGuard],
 })
 export class AppModule {}
