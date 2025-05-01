@@ -1,35 +1,43 @@
-// document-service/src/app.module.ts
+// src/app.module.ts
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
 import { DocumentsModule } from './documents/documents.module';
 import { DocumentEntity } from './documents/entities/document.entity';
-//import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './shared/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    // 1) Connexion à la base
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,   // ex: 'postgres://postgres:postgres@localhost:5432/myappdb'
-      entities: [DocumentEntity],
-      synchronize: true,
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject:  [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type:       'postgres',
+        url:        config.get<string>('DATABASE_URL'),
+        entities:   [DocumentEntity],
+        synchronize:true,
+        logging:    false,
+      }),
     }),
 
-    // 2) Déclaration de l’entity pour injection dans vos modules
     TypeOrmModule.forFeature([DocumentEntity]),
 
-    // 3) Module fonctionnel documents
     DocumentsModule,
 
-    // 4) Module JWT pour le guard
-    JwtModule.register({
-      secret: process.env.SECRET_KEY,   // même SECRET_KEY que dans auth-service
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject:  [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret:      config.get<string>('SECRET_KEY'),
+        signOptions: { expiresIn: '1h' },
+      }),
     }),
   ],
   // si vous aviez besoin de le fournir globalement :
-  //providers: [JwtAuthGuard],
+  providers: [JwtAuthGuard],
 })
 export class AppModule {}

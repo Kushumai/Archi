@@ -5,7 +5,9 @@ import { RequestWithUser } from '../shared/types/request-with-user';
 
 @Controller('documents')
 export class DocumentsController {
-  constructor(private readonly docs: DocumentsService) {}
+  constructor(private readonly docs: DocumentsService) {
+    console.log('🗂️  DocumentsController instantiated');
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get()
