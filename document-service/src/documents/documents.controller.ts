@@ -1,5 +1,3 @@
-// document-service/src/documents/documents.controller.ts
-
 import {
   Controller,
   Get,
@@ -16,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage, DiskStorageOptions } from 'multer';
+
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { DocumentsService } from './documents.service';
@@ -39,17 +38,30 @@ export class DocumentsController {
     return this.docs.findAllByOwner(req.user.sub);
   }
 
+
   @Post()
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage(storageOpts),
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, callback) => {
+          const ext = file.originalname.split('.').pop();
+          const name = `${Date.now()}.${ext}`;
+          callback(null, name);
+        },
+      }),
+      fileFilter: (req, file, callback) => {
+        // optionnel : filtrer les types (pdf, docx…)
+        callback(null, true);
+      },
+    }),
+  )
   @HttpCode(HttpStatus.CREATED)
-  create(
+  async create(
     @Req() req: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateDocumentDto,
   ) {
-    // on transmet **uniquement** file.filename (string)
     return this.docs.create(req.user.sub, dto, file.filename);
   }
 

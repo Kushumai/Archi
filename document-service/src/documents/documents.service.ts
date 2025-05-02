@@ -1,8 +1,7 @@
-// document-service/src/documents/documents.service.ts
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { DocumentEntity } from './entities/document.entity';
 import { CreateDocumentDto } from './dto/create-document.dto';
 
@@ -17,16 +16,15 @@ export class DocumentsService {
     return this.repo.find({ where: { ownerId } });
   }
 
-  // >>>> Ici on ne reçoit plus un File mais **seulement** le filename <<<<
   async create(
     ownerId: string,
     dto: CreateDocumentDto,
-    filename: string,        // <— on attend bien un string
+    filename: string,
   ): Promise<DocumentEntity> {
     const doc = this.repo.create({
       ownerId,
       title: dto.title,
-      fileName: filename,               // on stocke le nom de fichier
+      fileName: filename,
     });
     return this.repo.save(doc);
   }
