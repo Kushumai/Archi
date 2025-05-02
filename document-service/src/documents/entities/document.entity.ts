@@ -14,9 +14,9 @@ export class DocumentEntity {
   @Column()
   fileName!: string;        // nom original du fichier
 
-  @Column()
-  mimeType!: string;        // ex. 'application/pdf'
+  // @Column()
+  // mimeType!: string;        // ex. 'application/pdf'
 
-  @CreateDateColumn()
-  uploadDate!: Date;        // date & heure du téléversement
+  // @CreateDateColumn()
+  // uploadDate!: Date;        // date & heure du téléversement
 }

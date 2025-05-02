@@ -11,6 +11,7 @@ import {
   HttpStatus,
   Param,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage, DiskStorageOptions } from 'multer';
@@ -51,7 +52,7 @@ export class DocumentsController {
         },
       }),
       fileFilter: (req, file, callback) => {
-        // optionnel : filtrer les types (pdf, docx…)
+        // TODO : filtrer les types (pdf, docx…)
         callback(null, true);
       },
     }),
@@ -62,6 +63,9 @@ export class DocumentsController {
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: CreateDocumentDto,
   ) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
     return this.docs.create(req.user.sub, dto, file.filename);
   }
 
