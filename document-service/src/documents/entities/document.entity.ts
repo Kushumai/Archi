@@ -9,6 +9,9 @@ export class DocumentEntity {
   ownerId!: string;         // l’ID de l’utilisateur (JWT sub)
 
   @Column()
+  title: string;
+
+  @Column()
   fileName!: string;        // nom original du fichier
 
   @Column()

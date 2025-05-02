@@ -1,6 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+// document-service/src/documents/dto/create-document.dto.ts
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+
 export class CreateDocumentDto {
+
   @IsString()
   @IsNotEmpty()
-  title: string;
+  title!: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 }
