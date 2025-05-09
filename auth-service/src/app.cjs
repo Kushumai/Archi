@@ -21,7 +21,7 @@ app.use(cookieParser());
 const testUser = {
   id: '1',
   email: 'test@example.com',
-  // mot de passe clair : 'password123'
+
   passwordHash: null,
 };
 (async () => {

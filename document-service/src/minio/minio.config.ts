@@ -11,8 +11,7 @@ export class MinioConfigService {
 
   constructor(private configService: ConfigService) {
     const s3 = new AWS.S3({
-      endpoint: `${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT') ?? 9000}`,
-      region: this.configService.get('MINIO_REGION') ?? 'us-east-1',
+      endpoint: `${this.configService.get<string>('MINIO_ENDPOINT') ?? 'http://localhost'}:${this.configService.get<string>('MINIO_PORT') ?? '9000'}`,      region: this.configService.get('MINIO_REGION') ?? 'us-east-1',
       credentials: {
         accessKeyId: this.configService.get('MINIO_ACCESS_KEY')!,
         secretAccessKey: this.configService.get('MINIO_SECRET_KEY')!,
