@@ -7,20 +7,27 @@ import {
   HttpStatus,
   UseGuards,
   BadRequestException,
-  UploadedFile,
   UseInterceptors,
+  Param,
+  Res,
+  NotFoundException,
+  Get,
+
 } from '@nestjs/common';
+import { Response } from 'express';
 import { DocumentsService } from './documents.service';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { RequestWithUser } from '../shared/types/request-with-user';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { MinioUploadInterceptor } from '../minio/minio.interceptor';
+import { MinioConfigService } from '../minio/minio.config';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
 export class DocumentsController {
   constructor(
     private readonly docs: DocumentsService,
+    private readonly minio: MinioConfigService,
   ) {}
 
   @Post()
@@ -37,5 +44,42 @@ export class DocumentsController {
     }
   
     return this.docs.create(req.user.sub, dto, file.key ?? file.originalname);
+  }
+
+  @Get(':id/file')
+  async download(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Req() req: RequestWithUser,
+  ) {
+    const doc = await this.docs.findOneForOwner(req.user.sub, id);
+    if (!doc) throw new NotFoundException('Document not found');
+
+    const fileName = doc.fileName;
+
+    try {
+      const object = await this.minio.s3
+        .getObject({
+          Bucket: this.minio.getBucket(),
+          Key: fileName,
+        })
+        .promise();
+    
+      res.set({
+        'Content-Type': object.ContentType || 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${fileName}"`,
+      });
+    
+      const stream = object.Body;
+    
+      if (stream && typeof (stream as any).pipe === 'function') {
+        (stream as any).pipe(res);
+      } else {
+        res.send(stream); // fallback buffer
+      }
+    } catch (err) {
+      console.error('❌ Erreur MinIO :', err);
+      throw new NotFoundException('Fichier introuvable dans MinIO');
+    }
   }
 }

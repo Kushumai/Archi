@@ -28,5 +28,10 @@ export class MinioConfigService {
       contentType: (req, file, cb) => cb(null, file.mimetype),
       key: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
     });
+    
+  }
+  
+  getBucket(): string {
+    return this.configService.get<string>('MINIO_BUCKET')!;
   }
 }

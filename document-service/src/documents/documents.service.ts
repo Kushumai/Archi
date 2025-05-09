@@ -36,4 +36,8 @@ export class DocumentsService {
     }
     await this.repo.delete(id);
   }
+
+  async findOneForOwner(ownerId: string, id: string): Promise<DocumentEntity | null> {
+    return this.repo.findOne({ where: { id, ownerId } });
+  }
 }
