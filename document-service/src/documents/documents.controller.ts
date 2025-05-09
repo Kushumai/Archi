@@ -1,43 +1,32 @@
 import {
   Controller,
-  Get,
   Post,
-  Delete,
-  UploadedFile,
   UseInterceptors,
-  Body,
+  UploadedFile,
   Req,
+  Body,
   HttpCode,
   HttpStatus,
-  Param,
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-
-import { minioStorage } from '../minio.config';
-import { CreateDocumentDto } from './dto/create-document.dto';
-import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { DocumentsService } from './documents.service';
+import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { RequestWithUser } from '../shared/types/request-with-user';
+import { CreateDocumentDto } from './dto/create-document.dto';
+import { MinioConfigService } from '../minio/minio.config';
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
 export class DocumentsController {
-  constructor(private readonly docs: DocumentsService) {}
-
-  @Get()
-  getMyDocuments(@Req() req: RequestWithUser) {
-    return this.docs.findAllByOwner(req.user.sub);
-  }
-
+  constructor(
+    private readonly docs: DocumentsService,
+    private readonly minio: MinioConfigService,
+  ) {}
 
   @Post()
-  @UseInterceptors(
-    FileInterceptor(
-      'file', { storage: minioStorage }
-    )
-  )
+  @UseInterceptors(FileInterceptor('file'))
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Req() req: RequestWithUser,
@@ -47,15 +36,11 @@ export class DocumentsController {
     if (!file) {
       throw new BadRequestException('File is required');
     }
+
     return this.docs.create(req.user.sub, dto, file.filename);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
-    @Req() req: RequestWithUser,
-    @Param('id') id: string,
-  ) {
-    return this.docs.remove(req.user.sub, id);
+  useFileInterceptor() {
+    return FileInterceptor('file', { storage: this.minio.storage });
   }
 }

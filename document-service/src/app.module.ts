@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { DocumentsModule } from './documents/documents.module';
 import { DocumentEntity } from './documents/entities/document.entity';
+import { MinioConfigService } from './minio/minio.config';
 
 @Module({
   imports: [
@@ -23,5 +24,7 @@ import { DocumentEntity } from './documents/entities/document.entity';
       signOptions: { expiresIn: '1h' },
     }),
   ],
+  providers: [MinioConfigService],
+  exports: [MinioConfigService],
 })
 export class AppModule {}
