@@ -17,5 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "typeRoots": ["node_modules/@types", "src/@types"]
 }

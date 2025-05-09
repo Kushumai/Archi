@@ -16,6 +16,7 @@ import { DocumentEntity } from './documents/entities/document.entity';
       entities: [DocumentEntity],
       synchronize: true,
     }),
+    TypeOrmModule.forFeature([DocumentEntity]),
     DocumentsModule,
     JwtModule.register({
       secret: process.env.SECRET_KEY,

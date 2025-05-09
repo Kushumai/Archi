@@ -14,20 +14,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage, DiskStorageOptions } from 'multer';
 
+import { minioStorage } from '../minio.config';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { DocumentsService } from './documents.service';
 import { RequestWithUser } from '../shared/types/request-with-user';
-
-const storageOpts: DiskStorageOptions = {
-  destination: './uploads',
-  filename: (_req, file, cb) => {
-    const ext = file.originalname.split('.').pop();
-    cb(null, `${Date.now()}.${ext}`);
-  },
-};
 
 @Controller('documents')
 @UseGuards(JwtAuthGuard)
@@ -42,20 +34,9 @@ export class DocumentsController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (_req, file, callback) => {
-          const ext = file.originalname.split('.').pop();
-          const name = `${Date.now()}.${ext}`;
-          callback(null, name);
-        },
-      }),
-      fileFilter: (req, file, callback) => {
-        // TODO : filtrer les types (pdf, docx…)
-        callback(null, true);
-      },
-    }),
+    FileInterceptor(
+      'file', { storage: minioStorage }
+    )
   )
   @HttpCode(HttpStatus.CREATED)
   async create(
