@@ -12,6 +12,7 @@ import {
   Res,
   NotFoundException,
   Get,
+  Delete,
 
 } from '@nestjs/common';
 import { Response } from 'express';
@@ -82,4 +83,26 @@ export class DocumentsController {
       throw new NotFoundException('Fichier introuvable dans MinIO');
     }
   }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+  ) {
+    const doc = await this.docs.findOneForOwner(req.user.sub, id);
+    if (!doc) throw new NotFoundException('Document not found');
+
+    try {
+      await this.minio.s3.deleteObject({
+        Bucket: this.minio.getBucket(),
+        Key: doc.fileName,
+      }).promise();
+    } catch (err) {
+      console.error('⚠️ Erreur suppression MinIO (continuation suppression base) :', err);
+    }
+
+    await this.docs.remove(req.user.sub, id);
+  }
+
 }
