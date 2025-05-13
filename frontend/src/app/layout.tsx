@@ -1,4 +1,4 @@
-import "./globals.css";
+import "@/styles/globals.css"
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthProvider } from "@/contexts/authContext";

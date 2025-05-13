@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/providers/theme-provider";
+import { Button } from "@/components/atoms/Button";
 
 export const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
@@ -13,13 +14,10 @@ export const ThemeSwitcher = () => {
   };
 
   return (
-    <button
-      onClick={nextTheme}
-      className="px-4 py-2 bg-gray-200 dark:bg-gray-800 text-black dark:text-white rounded"
-    >
+    <Button onClick={nextTheme}>
       {theme === "light" && "🌞 Light"}
       {theme === "dark" && "🌙 Dark"}
       {theme === "accessible" && "🎨 Accessible"}
-    </button>
+    </Button>
   );
 };

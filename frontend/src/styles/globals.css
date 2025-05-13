@@ -1,29 +1,24 @@
-@import "tailwindcss/preflight";
+@tailwind base;
+@tailwind components;
 @tailwind utilities;
 
-/* 🌈 Theme variables */
 :root[data-theme="light"] {
   --color-primary: #4F46E5;
   --color-background: #ffffff;
   --color-text: #111827;
+  --color-navbar: #f9fafb;
 }
 
 :root[data-theme="dark"] {
   --color-primary: #6366F1;
   --color-background: #111827;
   --color-text: #ffffff;
+  --color-navbar: #1f2937;
 }
 
 :root[data-theme="accessible"] {
   --color-primary: #005BBB;
   --color-background: #ffffff;
   --color-text: #000000;
-}
-
-/* 🌟 Global body styles */
-body {
-  background-color: var(--color-background);
-  color: var(--color-text);
-  -webkit-font-smoothing: antialiased;
-  transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  --color-navbar: #e5e5e5;
 }

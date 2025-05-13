@@ -6,7 +6,7 @@ export const MainLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <Navbar />
-      <main className="container mx-auto px-4 py-6 min-h-[calc(100vh-128px)]">
+      <main className="max-w-7xl mx-auto px-6 py-8 min-h-[calc(100vh-128px)]">
         {children}
       </main>
       <Footer />
