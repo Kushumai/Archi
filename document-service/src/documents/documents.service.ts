@@ -12,8 +12,13 @@ export class DocumentsService {
     private readonly repo: Repository<DocumentEntity>,
   ) {}
 
-  async findAllByOwner(ownerId: string): Promise<DocumentEntity[]> {
-    return this.repo.find({ where: { ownerId } });
+  async findAllByOwner(ownerId: string): Promise<{ id: string; title: string; fileName: string }[]> {
+    const docs = await this.repo.find({ where: { ownerId } });
+    return docs.map(doc => ({
+      id: doc.id,
+      title: doc.title,
+      fileName: doc.fileName,
+    }));
   }
 
   async create(
@@ -40,4 +45,6 @@ export class DocumentsService {
   async findOneForOwner(ownerId: string, id: string): Promise<DocumentEntity | null> {
     return this.repo.findOne({ where: { id, ownerId } });
   }
+
+  
 }

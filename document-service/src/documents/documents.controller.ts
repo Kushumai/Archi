@@ -105,4 +105,10 @@ export class DocumentsController {
     await this.docs.remove(req.user.sub, id);
   }
 
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  async getMyDocuments(@Req() req: RequestWithUser) {
+    return this.docs.findAllByOwner(req.user.sub);
+  }
+
 }
