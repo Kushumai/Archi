@@ -41,62 +41,66 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold text-foreground">Connexion</h1>
             <p className="text-sm text-muted-foreground">Accédez à votre espace personnel</p>
           </div>
+
           {error && (
             <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
               <span className="font-medium">Erreur :</span> {error}
             </div>
           )}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Mot de passe
-            </label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {/* ✅ FORMULAIRE BIEN ENCADRÉ */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="flex items-center justify-between">
-            <label className="flex items-center space-x-2 text-sm text-foreground">
-              <Checkbox id="remember" checked={remember} onCheckedChange={() => setRemember(!remember)} />
-              <span>Se souvenir de moi</span>
-            </label>
-            <Link href="#" className="text-sm text-primary underline hover:opacity-80">
-              Mot de passe oublié ?
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                Mot de passe
+              </label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center space-x-2 text-sm text-foreground">
+                <Checkbox id="remember" checked={remember} onCheckedChange={() => setRemember(!remember)} />
+                <span>Se souvenir de moi</span>
+              </label>
+              <Link href="#" className="text-sm text-primary underline hover:opacity-80">
+                Mot de passe oublié ?
+              </Link>
+            </div>
+
+            <Button type="submit" className="w-full">
+              Se connecter
+            </Button>
+          </form>
+
+          <p className="text-sm text-center text-muted-foreground">
+            Pas encore de compte ?{" "}
+            <Link href="/register" className="text-primary underline hover:opacity-80">
+              S’inscrire
             </Link>
-          </div>
-
-          <Button type="submit" className="w-full">
-            Se connecter
-          </Button>
-        </form>
-
-        <p className="text-sm text-center text-muted-foreground">
-          Pas encore de compte ?{" "}
-          <Link href="/register" className="text-primary underline hover:opacity-80">
-            S’inscrire
-          </Link>
-        </p>
-      </div>
-    </section>
-    </PublicLayout >
+          </p>
+        </div>
+      </section>
+    </PublicLayout>
   )
 }
