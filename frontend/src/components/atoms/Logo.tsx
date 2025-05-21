@@ -1,22 +1,18 @@
 import * as React from "react"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-export interface LogoProps extends React.HTMLAttributes<HTMLDivElement> { }
+type LogoProps = React.HTMLAttributes<HTMLSpanElement>
 
-export const Logo = React.forwardRef<HTMLDivElement, LogoProps>(
+export const Logo = React.forwardRef<HTMLSpanElement, LogoProps>(
   ({ className, ...props }, ref) => {
     return (
-      <div
+      <span
         ref={ref}
-        className={cn("text-xl font-bold text-primary-600", className)}
+        className={cn("font-bold text-xl text-primary-600", className)}
         {...props}
       >
-        <Link href="/">
-          <span className="sr-only">Accueil</span>
-          Archi
-        </Link>
-      </div>
+        Archi
+      </span>
     )
   }
 )

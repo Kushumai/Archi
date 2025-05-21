@@ -1,16 +1,18 @@
+"use client"
+
 import * as React from "react"
 import { Header } from "@/components/organisms/Header"
 import { Footer } from "@/components/organisms/Footer"
 
-export interface MainLayoutProps {
+interface MainLayoutProps {
   children: React.ReactNode
 }
 
 export const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="flex min-h-screen flex-col bg-white text-neutral-900 dark:bg-neutral-900 dark:text-white">
       <Header />
-      <main className="flex-1 px-4 py-6">{children}</main>
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   )

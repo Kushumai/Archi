@@ -5,31 +5,28 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-export interface NavLinkProps
-  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+type NavLinkProps = {
   href: string
-  exact?: boolean
+  label: string
+  className?: string
 }
 
 export const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
-  ({ href, exact = false, className, children, ...props }, ref) => {
+  ({ href, label, className }, ref) => {
     const pathname = usePathname()
-    const isActive = exact ? pathname === href : pathname.startsWith(href)
+    const isActive = pathname === href
 
     return (
       <Link
-        href={href}
         ref={ref}
+        href={href}
         className={cn(
           "text-sm font-medium transition-colors hover:text-primary-600",
-          isActive
-            ? "text-primary-600 dark:text-white"
-            : "text-neutral-700 dark:text-neutral-300",
+          isActive ? "text-primary-600 dark:text-primary-400" : "text-neutral-700 dark:text-neutral-300",
           className
         )}
-        {...props}
       >
-        {children}
+        {label}
       </Link>
     )
   }

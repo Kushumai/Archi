@@ -1,7 +1,7 @@
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import Link from "next/link"
 import { Button } from "@/components/atoms/Button"
-import Image from "next/image"
+//import Image from "next/image"
 
 
 export default function LandingPage() {

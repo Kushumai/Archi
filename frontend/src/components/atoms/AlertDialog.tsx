@@ -12,7 +12,7 @@ export const AlertDialogAction = RadixAlertDialog.Action
 export const AlertDialogPortal = RadixAlertDialog.Portal
 
 export const AlertDialogOverlay = React.forwardRef<
-  React.ElementRef<typeof RadixAlertDialog.Overlay>,
+  React.ComponentRef<typeof RadixAlertDialog.Overlay>,
   React.ComponentPropsWithoutRef<typeof RadixAlertDialog.Overlay>
 >(({ className, ...props }, ref) => (
   <RadixAlertDialog.Overlay
@@ -27,7 +27,7 @@ export const AlertDialogOverlay = React.forwardRef<
 AlertDialogOverlay.displayName = RadixAlertDialog.Overlay.displayName
 
 export const AlertDialogContent = React.forwardRef<
-  React.ElementRef<typeof RadixAlertDialog.Content>,
+  React.ComponentRef<typeof RadixAlertDialog.Content>,
   React.ComponentPropsWithoutRef<typeof RadixAlertDialog.Content>
 >(({ className, ...props }, ref) => (
   <RadixAlertDialog.Portal>

@@ -7,26 +7,24 @@ import { Button } from "@/components/atoms/Button"
 import { PublicLayout } from "@/components/templates/PublicLayout"
 import { api } from "@/lib/api"
 import { useRouter } from "next/navigation"
+import { AxiosError } from "axios"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [error, setError] = useState<string>("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
 
     try {
-      await api.post("/auth/login", {
-        email,
-        password,
-      })
-
+      await api.post("/auth/login", { email, password })
       router.push("/dashboard")
-    } catch (err: any) {
-      const message = err?.response?.data?.message || "Erreur inconnue"
+    } catch (err: unknown) {
+      const message =
+        (err as AxiosError<{ message: string }>)?.response?.data?.message || "Erreur inconnue"
       setError(message)
     }
   }
@@ -58,7 +56,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -72,7 +70,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -85,7 +83,7 @@ export default function LoginPage() {
           <p className="text-sm text-center text-neutral-600 dark:text-neutral-400">
             Pas encore de compte ?{" "}
             <Link href="/register" className="text-primary-600 underline hover:opacity-80">
-              S’inscrire
+              S&apos;inscrire
             </Link>
           </p>
         </div>
