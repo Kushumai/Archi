@@ -26,7 +26,7 @@ export default function RegisterPage() {
         password,
       })
 
-      router.push("/login") // ou redirection vers dashboard si auto-login
+      router.push("/login")
     } catch (err: any) {
       const message = err?.response?.data?.message || "Erreur inconnue"
       setError(message)
@@ -36,17 +36,23 @@ export default function RegisterPage() {
   return (
     <PublicLayout>
       <section className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-6 border border-border p-6 rounded-xl bg-background shadow-sm">
+        <div className="w-full max-w-md space-y-6 border border-neutral-200 p-6 rounded-xl bg-white shadow-sm dark:bg-neutral-900 dark:border-neutral-700">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-foreground">Inscription</h1>
-            <p className="text-sm text-muted-foreground">Créez un compte gratuitement</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Inscription</h1>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              Créez un compte gratuitement
+            </p>
           </div>
 
-          {error && <p className="text-sm text-destructive text-center">{error}</p>}
+          {error && (
+            <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+              <span className="font-medium">Erreur :</span> {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-foreground">
+              <label htmlFor="username" className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Nom d'utilisateur
               </label>
               <Input
@@ -58,7 +64,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground">
+              <label htmlFor="email" className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Email
               </label>
               <Input
@@ -72,7 +78,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-foreground">
+              <label htmlFor="password" className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Mot de passe
               </label>
               <Input
@@ -90,9 +96,9 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <p className="text-sm text-center text-muted-foreground">
+          <p className="text-sm text-center text-neutral-600 dark:text-neutral-400">
             Déjà un compte ?{" "}
-            <Link href="/login" className="text-primary underline hover:opacity-80">
+            <Link href="/login" className="text-primary-600 underline hover:opacity-80">
               Se connecter
             </Link>
           </p>

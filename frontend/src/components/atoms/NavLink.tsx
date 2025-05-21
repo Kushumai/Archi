@@ -1,27 +1,38 @@
 "use client"
 
+import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-interface NavLinkProps {
+export interface NavLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string
-  children: React.ReactNode
+  exact?: boolean
 }
 
-export function NavLink({ href, children }: NavLinkProps) {
-  const pathname = usePathname()
-  const isActive = pathname === href
+export const NavLink = React.forwardRef<HTMLAnchorElement, NavLinkProps>(
+  ({ href, exact = false, className, children, ...props }, ref) => {
+    const pathname = usePathname()
+    const isActive = exact ? pathname === href : pathname.startsWith(href)
 
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "text-sm font-medium px-3 py-2 rounded-md transition-colors",
-        isActive ? "text-primary underline" : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {children}
-    </Link>
-  )
-}
+    return (
+      <Link
+        href={href}
+        ref={ref}
+        className={cn(
+          "text-sm font-medium transition-colors hover:text-primary-600",
+          isActive
+            ? "text-primary-600 dark:text-white"
+            : "text-neutral-700 dark:text-neutral-300",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Link>
+    )
+  }
+)
+
+NavLink.displayName = "NavLink"

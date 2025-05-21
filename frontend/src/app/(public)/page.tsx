@@ -1,18 +1,29 @@
-"use client";
+import { PublicLayout } from "@/components/templates/PublicLayout"
+import { Button } from "@/components/atoms/Button"
+import Link from "next/link"
 
-import Link from "next/link";
-import { Button } from "@/components/atoms/Button";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 h-[80vh] flex flex-col justify-center items-center text-center bg-[var(--color-background)] text-[var(--color-text)]">
-      <h1 className="text-5xl font-bold mb-6">Simplifiez la gestion immobilière 🏠</h1>
-      <p className="text-lg max-w-2xl mb-8">
-        Archi est la plateforme intuitive qui vous aide à gérer vos dossiers de location, documents et relations avec vos locataires en toute simplicité.
-      </p>
-      <Link href="/register">
-        <Button>Commencer maintenant</Button>
-      </Link>
-    </div>
-  );
+    <PublicLayout>
+      <section className="mx-auto max-w-4xl px-4 py-20 text-center">
+        <h1 className="text-4xl font-bold text-neutral-900 dark:text-white">
+          Archi, l’immobilier simplifié
+        </h1>
+        <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">
+          Plateforme de gestion pour particuliers, pros, et experts du bâtiment.
+        </p>
+
+        <div className="mt-8 flex justify-center gap-4">
+          <Link href="/register">
+            <Button size="lg">Créer un compte</Button>
+          </Link>
+          <Link href="/login">
+            <Button variant="secondary" size="lg">
+              Se connecter
+            </Button>
+          </Link>
+        </div>
+      </section>
+    </PublicLayout>
+  )
 }

@@ -22,14 +22,14 @@ export default function LandingPage() {
         </div>
 
         <div className="w-full max-w-sm md:max-w-md">
-          <Image
+          {/* <Image
             src="/illustration-archi.png"
             alt="Illustration de l'application Archi"
             width={400}
             height={300}
             className="mx-auto"
             priority
-          />
+          /> */}
         </div>
       </section>
 

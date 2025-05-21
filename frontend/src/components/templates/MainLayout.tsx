@@ -1,14 +1,17 @@
-// import { ReactNode } from "react";
-// import { Footer } from "@/components/organisms/Footer";
+import * as React from "react"
+import { Header } from "@/components/organisms/Header"
+import { Footer } from "@/components/organisms/Footer"
 
-// export const MainLayout = ({ children }: { children: ReactNode }) => {
-//   return (
-//     <>
-//       <Navbar />
-//       <main className="max-w-7xl mx-auto px-6 py-8 min-h-[calc(100vh-128px)]">
-//         {children}
-//       </main>
-//       <Footer />
-//     </>
-//   );
-// };
+export interface MainLayoutProps {
+  children: React.ReactNode
+}
+
+export const MainLayout = ({ children }: MainLayoutProps) => {
+  return (
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Header />
+      <main className="flex-1 px-4 py-6">{children}</main>
+      <Footer />
+    </div>
+  )
+}

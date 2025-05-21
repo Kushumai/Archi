@@ -1,31 +1,32 @@
-"use client";
+"use client"
 
-import { useAuth } from "@/contexts/authContext";
-import { useRouter } from "next/navigation";
-import { useEffect, ReactNode } from "react";
+import { useAuth } from "@/contexts/authContext"
+import { useRouter } from "next/navigation"
+import { useEffect, ReactNode } from "react"
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     if (!user) {
-      router.replace("/login");
+      router.replace("/login")
     }
-  }, [user, router]);
+  }, [user, router])
 
   if (!user) {
-    // Pendant le redirect on peut afficher un petit loader
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500 dark:text-gray-300">Chargement...</p>
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-sm text-neutral-500 dark:text-neutral-300">
+          Chargement...
+        </p>
       </div>
-    );
+    )
   }
 
-  return <>{children}</>;
-};
+  return <>{children}</>
+}
