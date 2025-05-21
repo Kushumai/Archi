@@ -1,52 +1,49 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { PrismaClient } from '@prisma/client'
-import * as argon2 from 'argon2'
 import { ConfigService } from '@nestjs/config'
+import { PrismaClient, User } from '@prisma/client'
+import * as argon2 from 'argon2'
 
 @Injectable()
 export class AuthService {
   private prisma = new PrismaClient()
 
   constructor(
-    private jwt: JwtService,
-    private config: ConfigService,
+    public readonly jwt: JwtService,
+    public readonly config: ConfigService,
   ) { }
 
-  async register(email: string, username: string, password: string) {
+  async register(email: string, username: string, password: string): Promise<void> {
+    const existing = await this.prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      throw new BadRequestException('Email déjà utilisé')
+    }
+
     const passwordHash = await argon2.hash(password)
 
-    const user = await this.prisma.user.create({
+    await this.prisma.user.create({
       data: {
         email,
         username,
         passwordHash,
       },
     })
-
-    return { message: 'User registered', id: user.id }
   }
 
-  async validateUser(email: string, password: string) {
+  async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.prisma.user.findUnique({ where: { email } })
 
     if (!user || !(await argon2.verify(user.passwordHash, password))) {
-      throw new UnauthorizedException('Invalid credentials')
+      throw new UnauthorizedException('Identifiants invalides')
     }
 
-    return user
+    const accessToken = this.signToken(user.id, this.config.get('ACCESS_TOKEN_TTL'))
+    const refreshToken = this.signToken(user.id, this.config.get('REFRESH_TOKEN_TTL'))
+
+    return { accessToken, refreshToken }
   }
 
-  signToken(userId: string): string {
-    const secret = this.config.get<string>('JWT_SECRET') ?? 'default-secret'
-    return this.jwt.sign({ sub: userId }, { secret, expiresIn: '15m' })
-  }
-
-  signRefreshToken(userId: string): string {
-    const secret = this.config.get<string>('JWT_SECRET') ?? 'default-secret'
-    return this.jwt.sign({ sub: userId }, {
-      secret,
-      expiresIn: '7d',
-    })
+  signToken(userId: string, ttl: number | undefined): string {
+    return this.jwt.sign({ sub: userId }, { expiresIn: `${ttl}s` })
   }
 }

@@ -1,88 +1,69 @@
 import {
+  Body,
   Controller,
   Post,
-  Body,
   Res,
-  Req,
-  UnauthorizedException,
-  HttpCode,
 } from '@nestjs/common'
+import { Response } from 'express'
 import { AuthService } from './auth.service'
-import { ConfigService } from '@nestjs/config'
-import { Response, Request } from 'express'
 
-@Controller('api/auth')
+@Controller('/api/auth')
 export class AuthController {
-  constructor(
-    private readonly auth: AuthService,
-    private readonly config: ConfigService,
-  ) { }
+  constructor(private readonly authService: AuthService) { }
 
-  @Post('login')
-  @HttpCode(200)
+  @Post('/register')
+  async register(
+    @Body() body: { email: string; username: string; password: string },
+  ) {
+    const { email, username, password } = body
+    await this.authService.register(email, username, password)
+    return { message: 'Utilisateur enregistré' }
+  }
+
+  @Post('/login')
   async login(
-    @Body() body: any,
+    @Body() body: { email: string; password: string },
     @Res({ passthrough: true }) res: Response,
   ) {
     const { email, password } = body
-    const isValid = await this.auth.validateUser(email, password)
-
-    if (!isValid) throw new UnauthorizedException('Invalid credentials')
-
-    const accessTtl = parseInt(this.config.get('ACCESS_TOKEN_TTL') || '3600', 10)
-    const refreshTtl = parseInt(this.config.get('REFRESH_TOKEN_TTL') || '86400', 10)
-
-    const accessToken = this.auth.signToken('1', accessTtl)
-    const refreshToken = this.auth.signToken('1', refreshTtl)
+    const { accessToken, refreshToken } = await this.authService.login(email, password)
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       path: '/api/auth/refresh',
-      maxAge: refreshTtl * 1000,
+      maxAge: this.parseMaxAge(),
     })
 
     return { accessToken }
   }
 
-  @Post('refresh')
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { refreshToken } = req.cookies
-    if (!refreshToken) throw new UnauthorizedException('No refresh token')
+  @Post('/refresh')
+  async refresh(@Res({ passthrough: true }) res: Response) {
+    const { refreshToken } = res.req.cookies
 
-    let payload: any
-    try {
-      payload = await this.auth['jwt'].verifyAsync(refreshToken)
-    } catch {
-      throw new UnauthorizedException('Invalid refresh token')
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'No refresh token' })
     }
 
-    const accessTtl = parseInt(this.config.get('ACCESS_TOKEN_TTL') || '3600', 10)
-    const refreshTtl = parseInt(this.config.get('REFRESH_TOKEN_TTL') || '86400', 10)
+    try {
+      const payload = await this.authService.jwt.verifyAsync(refreshToken)
+      const accessToken = this.authService.signToken(payload.sub, this.authService.config.get('ACCESS_TOKEN_TTL'))
+      const newRefreshToken = this.authService.signToken(payload.sub, this.authService.config.get('REFRESH_TOKEN_TTL'))
 
-    const newAccessToken = this.auth.signToken(payload.sub, accessTtl)
-    const newRefreshToken = this.auth.signToken(payload.sub, refreshTtl)
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true,
+        path: '/api/auth/refresh',
+        maxAge: this.parseMaxAge(),
+      })
 
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      path: '/api/auth/refresh',
-      maxAge: refreshTtl * 1000,
-    })
-
-    return { accessToken: newAccessToken }
+      return { accessToken }
+    } catch {
+      return res.status(401).json({ message: 'Invalid refresh token' })
+    }
   }
 
-  @Post('register')
-  @HttpCode(201)
-  register(@Body() body: any) {
-    const { email, password, username } = body
-    if (!email || !password || !username) {
-      return { message: 'Missing fields' }
-    }
-
-    console.log(`[MOCK REGISTER] ${email}, ${username}`)
-    return { message: 'User registered' }
+  private parseMaxAge(): number {
+    const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
+    return (ttl || 7 * 24 * 3600) * 1000 // fallback 7j
   }
 }

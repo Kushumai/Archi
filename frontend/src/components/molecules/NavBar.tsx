@@ -21,7 +21,6 @@ export const NavBar = React.forwardRef<HTMLElement, NavBarProps>(
       >
         <Logo />
         <div className="flex items-center gap-4">
-          <NavLink href="/" label="Accueil" />
           <NavLink href="/login" label="Connexion" />
           <NavLink href="/register" label="Inscription" />
           <ThemeSwitcher />

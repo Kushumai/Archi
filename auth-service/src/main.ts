@@ -12,7 +12,7 @@ async function bootstrap() {
 
   app.use(cookieParser())
 
-  await app.listen(3002)
+  await app.listen(3002, '0.0.0.0')
   console.log('✅ Auth Service running on http://localhost:3002')
 }
 bootstrap()
