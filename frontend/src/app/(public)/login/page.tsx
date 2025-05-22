@@ -5,23 +5,28 @@ import Link from "next/link"
 import { Input } from "@/components/atoms/Input"
 import { Button } from "@/components/atoms/Button"
 import { PublicLayout } from "@/components/templates/PublicLayout"
-import { api } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { AxiosError } from "axios"
+import { useAuth } from "@/contexts/authContext"
+import { Suspense } from "react"
+import RedirectHandler from "@/components/utils/RedirectHandler"
 
 export default function LoginPage() {
+  const { login } = useAuth()
   const router = useRouter()
-  const [email, setEmail] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [error, setError] = useState<string>("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError("")
 
+    const redirect = (e.currentTarget as HTMLFormElement).dataset.redirect || "/dashboard"
+
     try {
-      await api.post("/auth/login", { email, password })
-      router.push("/dashboard")
+      await login(email, password)
+      router.push(redirect)
     } catch (err: unknown) {
       const message =
         (err as AxiosError<{ message: string }>)?.response?.data?.message || "Erreur inconnue"
@@ -46,7 +51,11 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} id="login-form" className="space-y-4">
+            <Suspense fallback={null}>
+              <RedirectHandler />
+            </Suspense>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-neutral-800 dark:text-neutral-200">
                 Email
@@ -56,7 +65,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -70,7 +79,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
