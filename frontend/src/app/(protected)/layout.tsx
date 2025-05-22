@@ -13,7 +13,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
   try {
     verify(token, process.env.JWT_SECRET!)
-  } catch (err) {
+  } catch {
     redirect("/login")
   }
 

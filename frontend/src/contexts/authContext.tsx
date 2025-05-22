@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import axios from "@/lib/api"
 import { jwtDecode } from "jwt-decode"
+import { api } from "@/lib/api"
 
 interface User {
   id: string
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        const res = await axios.post("/auth/refresh", {}, { withCredentials: true })
+        const res = await api.post("/auth/refresh", {}, { withCredentials: true })
         const token = res.data.accessToken
         const decoded = jwtDecode<User>(token)
         setAccessToken(token)
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post("/auth/login", { email, password }, { withCredentials: true })
+      const res = await api.post("/auth/login", { email, password }, { withCredentials: true })
       const token = res.data.accessToken
       const decoded = jwtDecode<User>(token)
       setAccessToken(token)
@@ -63,15 +63,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!accessToken,
-        accessToken,
-        login,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!accessToken, accessToken, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
