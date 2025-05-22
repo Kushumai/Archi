@@ -1,24 +1,16 @@
-"use client"
-
-import { ProtectedRoute } from "@/components/templates/ProtectedRoute"
-import { MainLayout } from "@/components/templates/MainLayout"
-import { useAuth } from "@/contexts/authContext"
+import ProtectedRoute from "@/components/templates/ProtectedRoute"
 
 export default function DashboardPage() {
-  const { user } = useAuth()
-
   return (
     <ProtectedRoute>
-      <MainLayout>
-        <section className="max-w-4xl mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
-            Tableau de bord
-          </h1>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-            Bonjour, {user?.username || user?.email} 👋
-          </p>
-        </section>
-      </MainLayout>
+      <div className="flex flex-col items-center justify-center min-h-screen text-center p-8">
+        <h1 className="text-3xl font-bold text-neutral-800 dark:text-white">
+          Bienvenue sur le Dashboard
+        </h1>
+        <p className="mt-4 text-lg text-neutral-600 dark:text-neutral-300">
+          Vous êtes connecté avec succès.
+        </p>
+      </div>
     </ProtectedRoute>
   )
 }

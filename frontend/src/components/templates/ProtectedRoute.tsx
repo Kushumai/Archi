@@ -1,32 +1,22 @@
 "use client"
 
+import { useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/authContext"
-import { useRouter } from "next/navigation"
-import { useEffect, ReactNode } from "react"
 
-interface ProtectedRouteProps {
-  children: ReactNode
-}
-
-export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user } = useAuth()
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
-    if (!user) {
-      router.replace("/login")
+    if (!isAuthenticated) {
+      console.warn("❌ Utilisateur non authentifié. Redirection vers /login")
+      router.push(`/login?redirect=${pathname}`)
     }
-  }, [user, router])
+  }, [isAuthenticated, pathname, router])
 
-  if (!user) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-sm text-neutral-500 dark:text-neutral-300">
-          Chargement...
-        </p>
-      </div>
-    )
-  }
+  if (!isAuthenticated) return null
 
   return <>{children}</>
 }

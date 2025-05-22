@@ -3,8 +3,9 @@ import {
   Controller,
   Post,
   Res,
+  Req,
 } from '@nestjs/common'
-import { Response } from 'express'
+import { Response, Request } from 'express'
 import { AuthService } from './auth.service'
 
 @Controller('/api/auth')
@@ -30,7 +31,9 @@ export class AuthController {
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      path: '/api/auth/refresh',
+      path: '/',
+      sameSite: 'lax',
+      secure: false,
       maxAge: this.parseMaxAge(),
     })
 
@@ -38,8 +41,11 @@ export class AuthController {
   }
 
   @Post('/refresh')
-  async refresh(@Res({ passthrough: true }) res: Response) {
-    const { refreshToken } = res.req.cookies
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.refreshToken
 
     if (!refreshToken) {
       return res.status(401).json({ message: 'No refresh token' })
@@ -52,7 +58,9 @@ export class AuthController {
 
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
-        path: '/api/auth/refresh',
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
         maxAge: this.parseMaxAge(),
       })
 
@@ -64,6 +72,6 @@ export class AuthController {
 
   private parseMaxAge(): number {
     const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
-    return (ttl || 7 * 24 * 3600) * 1000 // fallback 7j
+    return (ttl || 7 * 24 * 3600) * 1000
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
-import { PrismaClient, User } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import * as argon2 from 'argon2'
 
 @Injectable()
@@ -37,8 +37,15 @@ export class AuthService {
       throw new UnauthorizedException('Identifiants invalides')
     }
 
-    const accessToken = this.signToken(user.id, this.config.get('ACCESS_TOKEN_TTL'))
-    const refreshToken = this.signToken(user.id, this.config.get('REFRESH_TOKEN_TTL'))
+    const payload = { sub: user.id, email: user.email }
+
+    const accessToken = this.jwt.sign(payload, {
+      expiresIn: `${this.config.get('ACCESS_TOKEN_TTL')}s`,
+    })
+
+    const refreshToken = this.jwt.sign(payload, {
+      expiresIn: `${this.config.get('REFRESH_TOKEN_TTL')}s`,
+    })
 
     return { accessToken, refreshToken }
   }

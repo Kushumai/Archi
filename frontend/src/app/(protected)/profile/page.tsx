@@ -1,6 +1,6 @@
 "use client"
 
-import { ProtectedRoute } from "@/components/templates/ProtectedRoute"
+import ProtectedRoute from "@/components/templates/ProtectedRoute"
 import { MainLayout } from "@/components/templates/MainLayout"
 import { useAuth } from "@/contexts/authContext"
 

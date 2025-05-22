@@ -1,22 +1,14 @@
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
-import { User } from './users/entities/user.entity';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-// const { DATABASE_URL } = process.env;
-// if (!DATABASE_URL) {
-//   throw new Error('Missing DATABASE_URL in environment');
-// }
+// src/data-source.ts
+import { DataSource } from "typeorm"
+import { User } from "./users/entities/user.entity"
 
 export const AppDataSource = new DataSource({
-  type: 'sqlite',
-  // url: DATABASE_URL,
-  database: 'dev.sqlite',
-  synchronize: true,
-  logging: false,
+  type: "postgres",
+  host: process.env.DB_HOST,
+  port: 5432,
+  username: "postgres",
+  password: "postgres",
+  database: "authdb",
   entities: [User],
-  migrations: [],
-  subscribers: [],
-});
+  synchronize: true,
+})
