@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { jwtDecode } from "jwt-decode"
-import { api } from "@/lib/api"
+import { api, setAccessToken as storeTokenInApi } from "@/lib/api"
 
 interface User {
   id: string
@@ -33,9 +33,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const token = res.data.accessToken
         const decoded = jwtDecode<User>(token)
         setAccessToken(token)
+        storeTokenInApi(token)
         setUser(decoded)
       } catch {
         setAccessToken(null)
+        storeTokenInApi(null)
         setUser(null)
       }
     }
@@ -49,6 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const token = res.data.accessToken
       const decoded = jwtDecode<User>(token)
       setAccessToken(token)
+      storeTokenInApi(token)
       setUser(decoded)
       router.push("/dashboard")
     } catch {
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Logout failed")
     }
     setAccessToken(null)
+    storeTokenInApi(null)
     setUser(null)
     router.push("/login")
   }
