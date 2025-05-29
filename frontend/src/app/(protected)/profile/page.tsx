@@ -33,7 +33,7 @@ export default function ProfilePage() {
 
           {user?.username && (
             <div>
-              <p className="text-sm font-medium text-neutral-500">Nom d'utilisateur</p>
+              <p className="text-sm font-medium text-neutral-500">{"Nom d'utilisateur"}</p>
               <p className="text-base font-semibold text-neutral-900 dark:text-white">
                 {user.username}
               </p>
@@ -42,7 +42,7 @@ export default function ProfilePage() {
 
           <div className="pt-4">
             <Button variant="secondary" disabled>
-              Modifier mon profil (à venir)
+              <p>{"Modifier mon profil (à venir)"}</p>
             </Button>
           </div>
         </Card>
