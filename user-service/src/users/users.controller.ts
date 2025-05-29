@@ -8,7 +8,6 @@ import {
   NotFoundException,
   UseGuards,
 } from '@nestjs/common'
-import { Request } from 'express'
 import { UsersService } from './users.service'
 import { UserDto } from './dto/user.dto'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'
