@@ -56,7 +56,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout", {}, { withCredentials: true })
+    } catch {
+      console.error("Logout failed")
+    }
     setAccessToken(null)
     setUser(null)
     router.push("/login")

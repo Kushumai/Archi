@@ -2,8 +2,7 @@
 
 import { useAuth } from "@/contexts/authContext"
 import ProtectedRoute from "@/components/templates/ProtectedRoute"
-import { Button } from "@/components/atoms/Button"
-
+import LogoutButton from "@/components/atoms/LogoutButton"
 export default function DashboardPage() {
   const { user, logout } = useAuth()
 
@@ -18,9 +17,9 @@ export default function DashboardPage() {
           Connecté avec : <strong>{user?.email}</strong>
         </p>
 
-        <Button className="mt-6" onClick={logout}>
+        <LogoutButton className="mt-6" onClick={logout}>
           Se déconnecter
-        </Button>
+        </LogoutButton>
       </div>
     </ProtectedRoute>
   )

@@ -70,6 +70,15 @@ export class AuthController {
     }
   }
 
+  @Post('/logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('refreshToken', {
+      path: '/',
+    })
+
+    return { message: 'Déconnecté' }
+  }
+
   private parseMaxAge(): number {
     const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
     return (ttl || 7 * 24 * 3600) * 1000
