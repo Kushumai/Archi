@@ -23,8 +23,8 @@ async function bootstrap() {
     })
   );
 
-  await app.listen(3004);
+  await app.listen(3003);
 
-  console.log(`📂 Document Service running on http://localhost:3004`);
+  console.log(`📂 Document Service running on http://localhost:3003`);
 }
 bootstrap();

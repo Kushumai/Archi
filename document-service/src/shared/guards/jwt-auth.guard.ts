@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
   canActivate(ctx: ExecutionContext): boolean {
     const req = ctx.switchToHttp().getRequest();
@@ -13,8 +13,7 @@ export class JwtAuthGuard implements CanActivate {
     }
     const token = auth.slice(7);
     try {
-      // remplacez 'YOUR_SECRET_KEY' par votre variable d’env env
-      const payload = this.jwtService.verify(token, { secret: process.env.SECRET_KEY });
+      const payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET! });
       req.user = payload;
       return true;
     } catch {

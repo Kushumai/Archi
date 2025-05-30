@@ -29,7 +29,7 @@ export class DocumentsController {
   constructor(
     private readonly docs: DocumentsService,
     private readonly minio: MinioConfigService,
-  ) {}
+  ) { }
 
   @Post()
   @UseInterceptors(MinioUploadInterceptor)
@@ -39,11 +39,11 @@ export class DocumentsController {
     @Body() dto: CreateDocumentDto,
   ) {
     const file = (req as any).file;
-  
+
     if (!file || !file.key) {
       throw new BadRequestException('File is required');
     }
-  
+
     return this.docs.create(req.user.sub, dto, file.key ?? file.originalname);
   }
 
@@ -65,14 +65,14 @@ export class DocumentsController {
           Key: fileName,
         })
         .promise();
-    
+
       res.set({
         'Content-Type': object.ContentType || 'application/octet-stream',
         'Content-Disposition': `attachment; filename="${fileName}"`,
       });
-    
+
       const stream = object.Body;
-    
+
       if (stream && typeof (stream as any).pipe === 'function') {
         (stream as any).pipe(res);
       } else {
@@ -108,6 +108,7 @@ export class DocumentsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getMyDocuments(@Req() req: RequestWithUser) {
+    console.log('req.user =', req.user);
     return this.docs.findAllByOwner(req.user.sub);
   }
 

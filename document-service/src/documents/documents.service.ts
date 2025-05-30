@@ -1,19 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-
-import { DocumentEntity } from './entities/document.entity';
+import { PrismaService } from '../prisma.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 
 @Injectable()
 export class DocumentsService {
-  constructor(
-    @InjectRepository(DocumentEntity)
-    private readonly repo: Repository<DocumentEntity>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAllByOwner(ownerId: string): Promise<{ id: string; title: string; fileName: string }[]> {
-    const docs = await this.repo.find({ where: { ownerId } });
+    const docs = await this.prisma.document.findMany({
+      where: { ownerId },
+    });
+
     return docs.map(doc => ({
       id: doc.id,
       title: doc.title,
@@ -21,30 +18,33 @@ export class DocumentsService {
     }));
   }
 
-  async create(
-    ownerId: string,
-    dto: CreateDocumentDto,
-    filename: string,
-  ): Promise<DocumentEntity> {
-    const doc = this.repo.create({
-      ownerId,
-      title: dto.title,
-      fileName: filename,
+  async create(ownerId: string, dto: CreateDocumentDto, filename: string) {
+    return this.prisma.document.create({
+      data: {
+        ownerId,
+        title: dto.title,
+        fileName: filename,
+      },
     });
-    return this.repo.save(doc);
   }
 
   async remove(ownerId: string, id: string): Promise<void> {
-    const doc = await this.repo.findOneBy({ id, ownerId });
+    const doc = await this.prisma.document.findFirst({
+      where: { id, ownerId },
+    });
+
     if (!doc) {
       throw new NotFoundException(`Document ${id} not found for owner ${ownerId}`);
     }
-    await this.repo.delete(id);
+
+    await this.prisma.document.delete({
+      where: { id },
+    });
   }
 
-  async findOneForOwner(ownerId: string, id: string): Promise<DocumentEntity | null> {
-    return this.repo.findOne({ where: { id, ownerId } });
+  async findOneForOwner(ownerId: string, id: string) {
+    return this.prisma.document.findFirst({
+      where: { id, ownerId },
+    });
   }
-
-  
 }

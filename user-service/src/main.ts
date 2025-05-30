@@ -4,9 +4,14 @@ import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // Global pipes (validation)
+
+  // Ajoute le préfixe global /api
+  app.setGlobalPrefix('api');
+
+  // Validation globale
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-  const port = process.env.PORT ? Number(process.env.PORT) : 3003;
+
+  const port = process.env.PORT ? Number(process.env.PORT) : 3001;
   await app.listen(port);
   console.log(`User Service (Nest) running on http://localhost:${port}`);
 }

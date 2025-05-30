@@ -8,12 +8,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Profile {
+model Document {
   id        String   @id @default(uuid())
-  userId    String
-  fullName  String
-  avatarUrl String?
-  bio       String?
+  ownerId   String
+  title     String
+  fileName  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

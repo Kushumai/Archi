@@ -79,9 +79,42 @@ services:
       - archi_net
 
 
+  user_postgres:
+    image: postgres:15
+    container_name: user_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userdb
+    volumes:
+      - user_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    networks:
+      - archi_net
+
+  document_postgres:
+    image: postgres:15
+    container_name: document_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: documentdb
+    volumes:
+      - document_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    networks:
+      - archi_net
+
+
 volumes:
   minio_data:
   auth_postgres_data:
+  user_postgres_data:
+  document_postgres_data:
 
 networks:
   archi_net:
