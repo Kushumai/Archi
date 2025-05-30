@@ -1,26 +1,35 @@
-import { Controller, Get, Param, NotFoundException, UseGuards } from '@nestjs/common'
-import { UsersService } from './users.service'
-import { UserDto } from './dto/user.dto'
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'
-import { CurrentUser } from '../common/decorators/current-user.decorator'
-import { User } from './entities/user.entity'
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async getMe(@CurrentUser() user: User): Promise<UserDto> {
-    return new UserDto(user)
+  @Get()
+  async findAll() {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string): Promise<UserDto> {
-    const user = await this.usersService.findById(id)
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`)
-    }
-    return new UserDto(user)
+  async findById(@Param('id') id: string) {
+    return this.usersService.findById(id);
+  }
+
+  @Post()
+  async create(@Body() body: { email: string; username: string; passwordHash: string }) {
+    return this.usersService.create(body);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: string,
+    @Body() body: { email?: string; username?: string; passwordHash?: string },
+  ) {
+    return this.usersService.update(id, body);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: string) {
+    return this.usersService.delete(id);
   }
 }
