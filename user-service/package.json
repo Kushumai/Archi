@@ -6,7 +6,10 @@
   "scripts": {
     "start:dev": "dotenv -e .env.local -- nest start --watch",
     "build": "nest build",
-    "start": "dotenv -e .env.local -- node dist/main.js"
+    "start": "dotenv -e .env.local -- node dist/main.js",
+    "typeorm:migration:generate": "ts-node --esm ./node_modules/typeorm/cli.js migration:generate -d src/data-source.ts",
+    "typeorm:migration:run": "ts-node --esm ./node_modules/typeorm/cli.js migration:run -d src/data-source.ts",
+    "typeorm:migration:show": "ts-node --esm ./node_modules/typeorm/cli.js migration:show -d src/data-source.ts"
   },
   "keywords": [],
   "author": "",

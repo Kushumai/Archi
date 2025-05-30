@@ -17,7 +17,9 @@ import { UsersModule } from './users/users.module';
         password: config.get<string>('POSTGRES_PASSWORD'),
         database: config.get<string>('POSTGRES_DB'),
         autoLoadEntities: true,
-        synchronize: true, // ❗ désactiver en prod
+        synchronize: false,
+        migrationsRun: true,
+        migrations: ['dist/migrations/*.js'],
       }),
     }),
     UsersModule,
