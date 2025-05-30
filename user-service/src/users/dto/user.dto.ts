@@ -1,14 +1,13 @@
-// user-service/src/users/dto/user.dto.ts
-import { User } from '../entities/user.entity';
+import { User } from '../entities/user.entity'
 
 export class UserDto {
-  id: string;
-  email: string;
-  username: string;
+  id: string
+  email: string
+  username?: string | null
 
   constructor(user: User) {
-    this.id = user.id;
-    this.email = user.email;
-    this.username = user.username;
+    this.id = user.id
+    this.email = user.email
+    this.username = user.username ?? null
   }
 }

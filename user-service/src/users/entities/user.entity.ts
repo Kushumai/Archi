@@ -8,9 +8,6 @@ export class User {
   @Column({ unique: true })
   email!: string
 
-  @Column({ unique: true, nullable: true })
-  username!: string | null
-
-  @Column()
-  password!: string
+  @Column('varchar', { unique: true, nullable: true })
+  username!: string
 }
