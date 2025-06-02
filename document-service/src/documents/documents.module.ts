@@ -5,10 +5,10 @@ import { DocumentsService } from './documents.service';
 import { DocumentsController } from './documents.controller';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
 import { MinioModule } from '../minio/minio.module';
-import { PrismaService } from '../prisma.service';
-
+import { PrismaModule } from '../../prisma/prisma.module';
 @Module({
   imports: [
+    PrismaModule,
     MinioModule,
     JwtModule.register({
       secret: process.env.SECRET_KEY!,
@@ -16,7 +16,6 @@ import { PrismaService } from '../prisma.service';
     }),
   ],
   providers: [
-    PrismaService,
     DocumentsService,
     JwtAuthGuard,
   ],

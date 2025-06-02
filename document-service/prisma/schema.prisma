@@ -14,4 +14,5 @@ model Document {
   title     String
   fileName  String
   createdAt DateTime @default(now())
+  description String?
 }

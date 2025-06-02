@@ -13,7 +13,6 @@ import {
   NotFoundException,
   Get,
   Delete,
-
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DocumentsService } from './documents.service';
@@ -29,7 +28,7 @@ export class DocumentsController {
   constructor(
     private readonly docs: DocumentsService,
     private readonly minio: MinioConfigService,
-  ) { }
+  ) {}
 
   @Post()
   @UseInterceptors(MinioUploadInterceptor)
@@ -40,11 +39,11 @@ export class DocumentsController {
   ) {
     const file = (req as any).file;
 
-    if (!file || !file.key) {
+    if (!file || !file.buffer) {
       throw new BadRequestException('File is required');
     }
 
-    return this.docs.create(req.user.sub, dto, file.key ?? file.originalname);
+    return this.docs.create(req.user.sub, dto, file);
   }
 
   @Get(':id/file')
@@ -59,25 +58,16 @@ export class DocumentsController {
     const fileName = doc.fileName;
 
     try {
-      const object = await this.minio.s3
-        .getObject({
-          Bucket: this.minio.getBucket(),
-          Key: fileName,
-        })
-        .promise();
+      const stream = await this.minio.client.getObject(
+        this.minio.getBucket(),
+        fileName,
+      );
 
       res.set({
-        'Content-Type': object.ContentType || 'application/octet-stream',
         'Content-Disposition': `attachment; filename="${fileName}"`,
       });
 
-      const stream = object.Body;
-
-      if (stream && typeof (stream as any).pipe === 'function') {
-        (stream as any).pipe(res);
-      } else {
-        res.send(stream); // fallback buffer
-      }
+      stream.pipe(res);
     } catch (err) {
       console.error('❌ Erreur MinIO :', err);
       throw new NotFoundException('Fichier introuvable dans MinIO');
@@ -94,10 +84,10 @@ export class DocumentsController {
     if (!doc) throw new NotFoundException('Document not found');
 
     try {
-      await this.minio.s3.deleteObject({
-        Bucket: this.minio.getBucket(),
-        Key: doc.fileName,
-      }).promise();
+      await this.minio.client.removeObject(
+        this.minio.getBucket(),
+        doc.fileName,
+      );
     } catch (err) {
       console.error('⚠️ Erreur suppression MinIO (continuation suppression base) :', err);
     }
@@ -108,8 +98,6 @@ export class DocumentsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   async getMyDocuments(@Req() req: RequestWithUser) {
-    console.log('req.user =', req.user);
     return this.docs.findAllByOwner(req.user.sub);
   }
-
 }

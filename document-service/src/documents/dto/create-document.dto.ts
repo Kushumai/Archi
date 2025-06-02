@@ -7,4 +7,7 @@ export class CreateDocumentDto {
   @IsNotEmpty()
   title!: string;
 
+  @IsString()
+  description!: string;
+
 }
