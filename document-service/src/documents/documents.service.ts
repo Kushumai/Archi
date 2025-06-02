@@ -57,16 +57,37 @@ export class DocumentsService {
     return document;
   }
 
+  async listMinioFiles(): Promise<string[]> {
+    const bucket = this.minio.getBucket();
+    const stream = this.minio.client.listObjectsV2(bucket, '', true);
+
+    const fileNames: string[] = [];
+
+    return new Promise((resolve, reject) => {
+        stream.on('data', (obj) => {
+            if (obj.name) {
+              fileNames.push(obj.name);
+            }
+        });
+        stream.on('end', () => {
+            resolve(fileNames);
+        });
+        stream.on('error', (err) => {
+            reject(err);
+        });
+    });
+  }
+
   async remove(userId: string, documentId: string) {
     const document = await this.findOneForOwner(userId, documentId);
 
-    // Supprimer dans MinIO
+
     await this.minio.client.removeObject(
       this.minio.getBucket(),
       document.fileName,
     );
 
-    // Supprimer dans la BDD
+
     await this.prisma.document.delete({
       where: { id: documentId },
     });

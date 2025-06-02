@@ -74,6 +74,12 @@ export class DocumentsController {
     }
   }
 
+  @Get('minio-files')
+  @HttpCode(HttpStatus.OK)
+  async listMinioFiles(@Req() req: RequestWithUser) {
+      return this.docs.listMinioFiles();
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(
