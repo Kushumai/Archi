@@ -13,6 +13,7 @@ import {
   NotFoundException,
   Get,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DocumentsService } from './documents.service';
@@ -107,14 +108,22 @@ export class DocumentsController {
             throw new Error('Internal server error when accessing storage');
         }
     }
-    
+
     await this.docs.remove(req.user.sub, id);
   }
 
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  async getMyDocuments(@Req() req: RequestWithUser) {
-    return this.docs.findAllByOwner(req.user.sub);
-  }
+@Get()
+@HttpCode(HttpStatus.OK)
+async getMyDocuments(
+    @Req() req: RequestWithUser,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+
+    return this.docs.findAllByOwner(req.user.sub, parsedLimit, parsedOffset);
+}
+
 }

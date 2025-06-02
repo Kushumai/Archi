@@ -36,10 +36,12 @@ export class DocumentsService {
     return document;
   }
 
-  async findAllByOwner(userId: string) {
+  async findAllByOwner(userId: string, limit = 10, offset = 0) {
     return this.prisma.document.findMany({
-      where: { ownerId: userId },
-      orderBy: { createdAt: 'desc' },
+        where: { ownerId: userId },
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
     });
   }
 
