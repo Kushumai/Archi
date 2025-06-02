@@ -46,33 +46,37 @@ export class DocumentsController {
     return this.docs.create(req.user.sub, dto, file);
   }
 
-  @Get(':id/file')
-  async download(
+    @Get(':id/file')
+    async download(
     @Param('id') id: string,
     @Res() res: Response,
     @Req() req: RequestWithUser,
-  ) {
+    ) {
     const doc = await this.docs.findOneForOwner(req.user.sub, id);
     if (!doc) throw new NotFoundException('Document not found');
 
+    const bucket = this.minio.getBucket();
     const fileName = doc.fileName;
 
     try {
-      const stream = await this.minio.client.getObject(
-        this.minio.getBucket(),
-        fileName,
-      );
+        const stream = await this.minio.client.getObject(bucket, fileName);
 
-      res.set({
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-      });
+        res.set({
+            'Content-Disposition': `attachment; filename="${fileName}"`,
+        });
 
-      stream.pipe(res);
-    } catch (err) {
-      console.error('❌ Erreur MinIO :', err);
-      throw new NotFoundException('Fichier introuvable dans MinIO');
+        stream.pipe(res);
+    } catch (err: any) {
+        console.error('❌ MinIO getObject error:', err);
+
+        if (err.code === 'NoSuchKey' || err.code === 'NoSuchObject' || err.code === 'NoSuchBucket') {
+            throw new NotFoundException('File not found in storage');
+        }
+
+        throw new Error('Internal server error when accessing storage');
     }
   }
+
 
   @Get('minio-files')
   @HttpCode(HttpStatus.OK)
@@ -80,26 +84,33 @@ export class DocumentsController {
       return this.docs.listMinioFiles();
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
+    @Delete(':id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async remove(
     @Req() req: RequestWithUser,
     @Param('id') id: string,
-  ) {
+    ) {
     const doc = await this.docs.findOneForOwner(req.user.sub, id);
     if (!doc) throw new NotFoundException('Document not found');
 
-    try {
-      await this.minio.client.removeObject(
-        this.minio.getBucket(),
-        doc.fileName,
-      );
-    } catch (err) {
-      console.error('⚠️ Erreur suppression MinIO (continuation suppression base) :', err);
-    }
+    const bucket = this.minio.getBucket();
+    const fileName = doc.fileName;
 
+    try {
+        await this.minio.client.removeObject(bucket, fileName);
+    } catch (err: any) {
+        console.error('⚠️ MinIO removeObject error:', err);
+
+        if (err.code === 'NoSuchKey' || err.code === 'NoSuchObject' || err.code === 'NoSuchBucket') {
+            console.warn(`⚠️ File ${fileName} not found in storage, skipping removeObject`);
+        } else {
+            throw new Error('Internal server error when accessing storage');
+        }
+    }
+    
     await this.docs.remove(req.user.sub, id);
   }
+
 
   @Get()
   @HttpCode(HttpStatus.OK)
