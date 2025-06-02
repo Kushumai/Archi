@@ -11,21 +11,19 @@ export class DocumentsService {
   ) { }
 
   async create(userId: string, dto: CreateDocumentDto, file: Express.Multer.File) {
-    const fileName = `${Date.now()}-${file.originalname}`;
+    const fileName = `${userId}/${Date.now()}-${file.originalname}`;
 
-    // Upload dans MinIO
     await this.minio.client.putObject(
       this.minio.getBucket(),
       fileName,
       file.buffer,
-      file.size,  // size en bytes (number)
+      file.size,
       {
         'Content-Type': file.mimetype,
       }
     );
 
 
-    // Enregistrer en BDD
     const document = await this.prisma.document.create({
       data: {
         title: dto.title,
@@ -86,7 +84,6 @@ export class DocumentsService {
       this.minio.getBucket(),
       document.fileName,
     );
-
 
     await this.prisma.document.delete({
       where: { id: documentId },
