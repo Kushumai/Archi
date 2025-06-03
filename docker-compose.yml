@@ -34,7 +34,17 @@ services:
       - archi_net
     depends_on:
       - minio
-
+  bff-service:
+    build: ./bff-service
+    container_name: archi_bff
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./bff-service/.env
+    depends_on:
+      - auth-service
+      - user-service
+      - document-service
   nginx:
     image: nginx:stable
     container_name: archi_nginx
