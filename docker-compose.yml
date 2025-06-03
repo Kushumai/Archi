@@ -3,17 +3,17 @@ services:
     build: ./frontend
     container_name: archi_frontend
     ports:
-      - "3000:3000"
-    networks:
-      - archi_net
+      - "3100:3100"
+    env_file:
+      - ./frontend/.env.local
     depends_on:
-      - auth-service
+      - bff-service
 
   auth-service:
     build: ./auth-service
     container_name: archi_auth
     ports:
-      - "3002:3002"
+      - "3001:3001"
     networks:
       - archi_net
 
@@ -21,7 +21,7 @@ services:
     build: ./user-service
     container_name: archi_user
     ports:
-      - "3001:3001"
+      - "3002:3002"
     networks:
       - archi_net
 
@@ -38,7 +38,7 @@ services:
     build: ./bff-service
     container_name: archi_bff
     ports:
-      - "3005:3005"
+      - "3000:3000"
     env_file:
       - ./bff-service/.env
     depends_on:
@@ -84,7 +84,7 @@ services:
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - archi_net
 
@@ -100,7 +100,7 @@ services:
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "5434:5432"
     networks:
       - archi_net
 
@@ -115,7 +115,7 @@ services:
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5436:5432"
+      - "5435:5432"
     networks:
       - archi_net
 
