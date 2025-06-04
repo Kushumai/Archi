@@ -1,63 +1,64 @@
 services:
+  nginx:
+    image: nginx:stable
+    container_name: archi_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/empty.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - auth-service
+      - user-service
+      - document-service
+    networks:
+      - archi_net
+
   frontend:
-    build: ./frontend
     container_name: archi_frontend
+    build:
+      context: ./frontend
     ports:
       - "3100:3100"
-    env_file:
-      - ./frontend/.env.local
-    depends_on:
-      - bff-service
+    networks:
+      - archi_net
+
+  bff-service:
+    container_name: archi_bff
+    build:
+      context: ./bff-service
+    ports:
+      - "3000:3000"
+    networks:
+      - archi_net
 
   auth-service:
-    build: ./auth-service
     container_name: archi_auth
+    build:
+      context: ./auth-service
     ports:
       - "3001:3001"
     networks:
       - archi_net
 
   user-service:
-    build: ./user-service
     container_name: archi_user
+    build:
+      context: ./user-service
     ports:
       - "3002:3002"
     networks:
       - archi_net
 
   document-service:
-    build: ./document-service
     container_name: archi_document
+    build:
+      context: ./document-service
     ports:
       - "3003:3003"
     networks:
       - archi_net
-    depends_on:
-      - minio
-  bff-service:
-    build: ./bff-service
-    container_name: archi_bff
-    ports:
-      - "3000:3000"
-    env_file:
-      - ./bff-service/.env
-    depends_on:
-      - auth-service
-      - user-service
-      - document-service
-  nginx:
-    image: nginx:stable
-    container_name: archi_nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "80:80"
-    networks:
-      - archi_net
-    depends_on:
-      - frontend
-      - auth-service
-
   minio:
     image: minio/minio
     container_name: archi_minio
@@ -119,12 +120,12 @@ services:
     networks:
       - archi_net
 
-
 volumes:
   minio_data:
   auth_postgres_data:
   user_postgres_data:
   document_postgres_data:
+  
 
 networks:
   archi_net:
