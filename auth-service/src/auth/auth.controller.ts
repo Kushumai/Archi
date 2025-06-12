@@ -92,11 +92,16 @@ export class AuthController {
   @Get('/me')
   getMe(@Req() req: AuthRequest) {
   const { sub, email, role } = req.user
-
+  console.log('ROUTE OK')
     return {
       id: sub,
       email: email ?? null,
       role: role ?? 'user',
     }
   }
+
+  // @Get('/me')
+  // getMe(@Req() req: any) {
+  // return { id: 'test', email: 'test@test.com', role: 'user' }
+  // }
 }
