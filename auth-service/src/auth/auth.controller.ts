@@ -4,9 +4,13 @@ import {
   Post,
   Res,
   Req,
+  Get,
+  UseGuards,
 } from '@nestjs/common'
 import { Response, Request } from 'express'
 import { AuthService } from './auth.service'
+import { AuthRequest } from '../common/types/auth-request.type'
+import { JwtAuthGuard } from './guards/jwt-auth.guard'
 
 @Controller('/api/auth')
 export class AuthController {
@@ -82,5 +86,17 @@ export class AuthController {
   private parseMaxAge(): number {
     const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
     return (ttl || 7 * 24 * 3600) * 1000
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  getMe(@Req() req: AuthRequest) {
+  const { sub, email, role } = req.user
+
+    return {
+      id: sub,
+      email: email ?? null,
+      role: role ?? 'user',
+    }
   }
 }
