@@ -19,6 +19,8 @@ services:
     container_name: archi_frontend
     build:
       context: ./frontend
+    env_file:
+      - ./auth-service/.env
     ports:
       - "3100:3100"
     networks:
@@ -28,6 +30,8 @@ services:
     container_name: archi_bff
     build:
       context: ./bff-service
+    env_file:
+      - ./auth-service/.env
     ports:
       - "3000:3000"
     networks:
@@ -37,6 +41,8 @@ services:
     container_name: archi_auth
     build:
       context: ./auth-service
+    env_file:
+      - ./auth-service/.env
     ports:
       - "3001:3001"
     networks:
@@ -46,6 +52,8 @@ services:
     container_name: archi_user
     build:
       context: ./user-service
+    env_file:
+      - ./auth-service/.env
     ports:
       - "3002:3002"
     networks:
@@ -55,6 +63,8 @@ services:
     container_name: archi_document
     build:
       context: ./document-service
+    env_file:
+      - ./auth-service/.env
     ports:
       - "3003:3003"
     networks:

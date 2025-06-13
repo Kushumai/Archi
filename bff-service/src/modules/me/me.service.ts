@@ -25,7 +25,7 @@ export class MeService {
       this.http.axiosRef.get(`${authServiceUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      this.http.axiosRef.get(`${userServiceUrl}/api/v1/profiles/me`, {
+      this.http.axiosRef.get(`${userServiceUrl}/api/v1/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
     ])
