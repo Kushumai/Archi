@@ -17,22 +17,7 @@ export class MeController {
     }
 
     const token = authHeader.replace('Bearer ', '')
-    const decoded = this.decodeJwt(token)
 
-    return this.meService.getFullUserInfo(decoded.sub, token)
-  }
-
-  private decodeJwt(token: string): { sub: string } {
-    try {
-      const payload = JSON.parse(
-        Buffer.from(token.split('.')[1], 'base64').toString()
-      )
-      if (!payload?.sub) {
-        throw new Error()
-      }
-      return { sub: payload.sub }
-    } catch {
-      throw new UnauthorizedException('Invalid token')
-    }
+    return this.meService.getMe(token)
   }
 }

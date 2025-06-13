@@ -1,4 +1,3 @@
-// document-service/src/@types/multer-s3-transform/index.d.ts
 declare module 'multer-s3-transform' {
     import { StorageEngine } from 'multer';
     import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
