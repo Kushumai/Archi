@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { DocumentsService } from './documents.service';
 import { DocumentsController } from './documents.controller';
-import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { MinioModule } from '../minio/minio.module';
 import { PrismaModule } from '../../prisma/prisma.module';
 @Module({
