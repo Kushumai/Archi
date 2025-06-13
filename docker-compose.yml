@@ -12,6 +12,7 @@ services:
       - auth-service
       - user-service
       - document-service
+      - bff-service
     networks:
       - archi_net
 
@@ -20,7 +21,7 @@ services:
     build:
       context: ./frontend
     env_file:
-      - ./auth-service/.env
+      - ./frontend/.env
     ports:
       - "3100:3100"
     networks:
@@ -31,7 +32,7 @@ services:
     build:
       context: ./bff-service
     env_file:
-      - ./auth-service/.env
+      - ./bff-service/.env
     ports:
       - "3000:3000"
     networks:
@@ -53,7 +54,7 @@ services:
     build:
       context: ./user-service
     env_file:
-      - ./auth-service/.env
+      - ./user-service/.env
     ports:
       - "3002:3002"
     networks:
@@ -64,7 +65,7 @@ services:
     build:
       context: ./document-service
     env_file:
-      - ./auth-service/.env
+      - ./document-service/.env
     ports:
       - "3003:3003"
     networks:

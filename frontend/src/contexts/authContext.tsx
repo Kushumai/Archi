@@ -2,13 +2,14 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
-import { jwtDecode } from "jwt-decode"
 import { api, setAccessToken as storeTokenInApi } from "@/lib/api"
 
 interface User {
   id: string
   email: string
+  role?: string
   username?: string
+  profile?: string
 }
 
 interface AuthContextType {
@@ -31,10 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const res = await api.post("/auth/refresh", {}, { withCredentials: true })
         const token = res.data.accessToken
-        const decoded = jwtDecode<User>(token)
+        
         setAccessToken(token)
         storeTokenInApi(token)
-        setUser(decoded)
+
+        const me = await api.get("/me", { withCredentials: true })
+        setUser(me.data)
       } catch {
         setAccessToken(null)
         storeTokenInApi(null)
@@ -49,10 +52,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.post("/auth/login", { email, password }, { withCredentials: true })
       const token = res.data.accessToken
-      const decoded = jwtDecode<User>(token)
       setAccessToken(token)
       storeTokenInApi(token)
-      setUser(decoded)
+
+      const me = await api.get("/me", { withCredentials: true })
+      setUser(me.data)
+
       router.push("/dashboard")
     } catch {
       throw new Error("Échec de la connexion")
