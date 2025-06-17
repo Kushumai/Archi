@@ -1,8 +1,16 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common'
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClient } from '@prisma/client'
 import * as argon2 from 'argon2'
+import { v4 as uuidv4 } from 'uuid'
+import { HttpService } from '@nestjs/axios'
+import { AxiosError } from 'axios'
 
 @Injectable()
 export class AuthService {
@@ -11,23 +19,44 @@ export class AuthService {
   constructor(
     public readonly jwt: JwtService,
     public readonly config: ConfigService,
-  ) { }
+    private readonly httpService: HttpService,
+  ) {}
 
-  async register(email: string, username: string, password: string): Promise<void> {
+  async register(
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string,
+  ): Promise<void> {
     const existing = await this.prisma.user.findUnique({ where: { email } })
     if (existing) {
       throw new BadRequestException('Email déjà utilisé')
     }
 
+    const userId = uuidv4()
     const passwordHash = await argon2.hash(password)
 
     await this.prisma.user.create({
       data: {
+        id: userId,
         email,
-        username,
         passwordHash,
       },
     })
+
+    const userServiceUrl = this.config.get('USER_SERVICE_URL') || 'http://user-service:3002'
+
+    try {
+      await this.httpService.axiosRef.post(`${userServiceUrl}/api/v1/users`, {
+        userId,
+        firstName,
+        lastName,
+      })
+    } catch (error) {
+      const axiosError = error as AxiosError
+      console.error('Erreur user-service :', axiosError.response?.data || axiosError.message)
+      throw new InternalServerErrorException('Erreur côté user-service')
+    }
   }
 
   async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {

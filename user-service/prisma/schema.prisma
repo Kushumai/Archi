@@ -9,11 +9,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  fullName  String
-  avatarUrl String?
-  bio       String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  firstName     String
+  lastName      String
+  discriminator String
+
+  avatarUrl     String?  // à compléter plus tard via /profile
+  bio           String?  // idem
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([firstName, lastName, discriminator])
 }

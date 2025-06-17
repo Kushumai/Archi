@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'
 import { AuthRequest } from '../common/types/auth-request.type'
+import { CreateUserDto } from './dto/create-user.dto'
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Post()
-  async create(@Body() body: { userId: string; fullName: string; avatarUrl?: string; bio?: string }) {
+  async create(@Body() body: CreateUserDto) {
     return this.usersService.create(body)
   }
 
