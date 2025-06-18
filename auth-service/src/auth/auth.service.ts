@@ -45,7 +45,6 @@ export class AuthService {
     })
 
     const userServiceUrl = this.config.getOrThrow('USER_SERVICE_URL')
-    const serviceToken = this.generateServiceToken()
 
     try {
       await this.httpService.axiosRef.post(
@@ -57,7 +56,8 @@ export class AuthService {
         },
         {
           headers: {
-            Authorization: `Bearer ${serviceToken}`,
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.generateServiceToken()}`,
           },
         },
       )

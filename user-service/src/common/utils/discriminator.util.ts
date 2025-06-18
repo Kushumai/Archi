@@ -1,18 +1,21 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
-export function generateDiscriminator(): string {
-  const random = Math.floor(Math.random() * 0xfffff)
-  return random.toString(36).padStart(4, '0')
+export function generateDiscriminator(length = 4): string {
+  const base = 36
+  const max = Math.pow(base, length)
+  const num = Math.floor(Math.random() * max)
+  return num.toString(base).padStart(length, '0')
 }
 
 export async function generateUniqueDiscriminator(
   prismaCreateFn: (discriminator: string) => Promise<any>,
-  maxAttempts = 5,
+  maxAttempts = 10,
 ) {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const discriminator = generateDiscriminator()
-
+    
     try {
+      console.log('🔍 Tentative de création avec discriminator :', discriminator)
       return await prismaCreateFn(discriminator)
     } catch (err) {
       if (

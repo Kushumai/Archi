@@ -23,17 +23,19 @@ export class UsersService {
   async create(data: { userId: string; firstName: string; lastName: string }) {
     const { userId, firstName, lastName } = data
 
+    const createWithDiscriminator = (discriminator: string) => {
+      return this.prisma.user.create({
+        data: {
+          userId,
+          firstName,
+          lastName,
+          discriminator,
+        },
+      })
+    }
+
     try {
-      return await generateUniqueDiscriminator(async (discriminator) =>
-        this.prisma.user.create({
-          data: {
-            userId,
-            firstName,
-            lastName,
-            discriminator,
-          },
-        }),
-      )
+      return await generateUniqueDiscriminator(createWithDiscriminator)
     } catch (err) {
       throw new ConflictException(
         'Impossible de créer un utilisateur avec un discriminator unique',

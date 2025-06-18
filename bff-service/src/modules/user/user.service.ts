@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios'
 import { firstValueFrom } from 'rxjs'
 import { AxiosError } from 'axios'
 
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3002'
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL
 
 @Injectable()
 export class UserService {
