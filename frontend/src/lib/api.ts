@@ -7,7 +7,7 @@ export const setAccessToken = (token: string | null) => {
 }
 
 export const api = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: "/api/v1",
   withCredentials: true,
 })
 

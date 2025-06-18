@@ -44,8 +44,8 @@ services:
       context: ./auth-service
     env_file:
       - ./auth-service/.env
-    ports:
-      - "3001:3001"
+    # ports:
+    #   - "3001:3001"
     networks:
       - archi_net
 
@@ -55,8 +55,8 @@ services:
       context: ./user-service
     env_file:
       - ./user-service/.env
-    ports:
-      - "3002:3002"
+    # ports:
+    #   - "3002:3002"
     networks:
       - archi_net
 
@@ -66,8 +66,8 @@ services:
       context: ./document-service
     env_file:
       - ./document-service/.env
-    ports:
-      - "3003:3003"
+    # ports:
+    #   - "3003:3003"
     networks:
       - archi_net
   minio:
