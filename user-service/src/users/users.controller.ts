@@ -14,6 +14,8 @@ import { UsersService } from './users.service'
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard'
 import { AuthRequest } from '../common/types/auth-request.type'
 import { CreateUserDto } from './dto/create-user.dto'
+import { ServiceAuthGuard } from '../common/guards/service-auth.guard'
+import { ServiceRequest } from '../common/types/service-request.type'
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -41,8 +43,13 @@ export class UsersController {
     return this.usersService.findById(userId)
   }
 
+  @UseGuards(ServiceAuthGuard)
   @Post()
-  async create(@Body() body: CreateUserDto) {
+  async create(
+    @Body() body: CreateUserDto,
+    @Req() req: ServiceRequest,
+  ) {
+    console.log('✅ Service appelant autorisé :', req.service)
     return this.usersService.create(body)
   }
 

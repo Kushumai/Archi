@@ -100,8 +100,8 @@ export class AuthController {
     }
   }
 
-  // @Get('/me')
-  // getMe(@Req() req: any) {
-  // return { id: 'test', email: 'test@test.com', role: 'user' }
-  // }
+  @Get('service-token')
+  getServiceToken() {
+  return this.authService.generateServiceToken()
+  }
 }

@@ -44,20 +44,30 @@ export class AuthService {
       },
     })
 
-    const userServiceUrl = this.config.get('USER_SERVICE_URL') || 'http://user-service:3002'
+    const userServiceUrl = this.config.getOrThrow('USER_SERVICE_URL')
+    const serviceToken = this.generateServiceToken()
 
     try {
-      await this.httpService.axiosRef.post(`${userServiceUrl}/api/v1/users`, {
-        userId,
-        firstName,
-        lastName,
-      })
+      await this.httpService.axiosRef.post(
+        `${userServiceUrl}/api/v1/users`,
+        {
+          userId,
+          firstName,
+          lastName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${serviceToken}`,
+          },
+        },
+      )
     } catch (error) {
       const axiosError = error as AxiosError
       console.error('Erreur user-service :', axiosError.response?.data || axiosError.message)
       throw new InternalServerErrorException('Erreur côté user-service')
     }
   }
+
 
   async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.prisma.user.findUnique({ where: { email } })
@@ -82,4 +92,13 @@ export class AuthService {
   signToken(userId: string, ttl: number | undefined): string {
     return this.jwt.sign({ sub: userId }, { expiresIn: `${ttl}s` })
   }
+
+  generateServiceToken(): string {
+  return this.jwt.sign(
+    { service: 'auth-service' },
+    {
+      secret: this.config.get('SERVICE_SECRET'),
+      expiresIn: '10m',
+    },
+  )}
 }
