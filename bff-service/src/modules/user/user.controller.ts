@@ -6,8 +6,6 @@ import {
   Delete,
   Param,
   Body,
-  Headers,
-  UnauthorizedException,
 } from '@nestjs/common'
 import { UserService } from './user.service'
 
@@ -16,46 +14,32 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async findAll(@Headers('authorization') authHeader: string) {
-    const token = this.extractToken(authHeader)
-    return this.userService.findAll(token)
+  async findAll() {
+    return this.userService.findAll()
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string, @Headers('authorization') authHeader: string) {
-    const token = this.extractToken(authHeader)
-    return this.userService.findById(id, token)
+  async findById(@Param('id') id: string) {
+    return this.userService.findById(id)
   }
 
   @Post()
   async create(
     @Body() body: { userId: string; fullName: string; avatarUrl?: string; bio?: string },
-    @Headers('authorization') authHeader: string,
   ) {
-    const token = this.extractToken(authHeader)
-    return this.userService.create(body, token)
+    return this.userService.create(body)
   }
 
   @Put(':id')
   async update(
     @Param('id') id: string,
     @Body() body: { fullName?: string; avatarUrl?: string; bio?: string },
-    @Headers('authorization') authHeader: string,
   ) {
-    const token = this.extractToken(authHeader)
-    return this.userService.update(id, body, token)
+    return this.userService.update(id, body)
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string, @Headers('authorization') authHeader: string) {
-    const token = this.extractToken(authHeader)
-    return this.userService.delete(id, token)
-  }
-
-  private extractToken(authHeader: string): string {
-    if (!authHeader?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Authorization header missing or malformed')
-    }
-    return authHeader.replace('Bearer ', '')
+  async delete(@Param('id') id: string) {
+    return this.userService.delete(id)
   }
 }

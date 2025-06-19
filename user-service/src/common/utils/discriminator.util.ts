@@ -15,7 +15,6 @@ export async function generateUniqueDiscriminator(
     const discriminator = generateDiscriminator()
     
     try {
-      console.log('🔍 Tentative de création avec discriminator :', discriminator)
       return await prismaCreateFn(discriminator)
     } catch (err) {
       if (
