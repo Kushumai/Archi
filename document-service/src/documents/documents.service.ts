@@ -91,4 +91,12 @@ export class DocumentsService {
       where: { id: documentId },
     });
   }
+
+  async findAll(limit: number, offset: number) {
+    return this.prisma.document.findMany({
+      skip: offset,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

@@ -22,12 +22,10 @@ export class MeService {
     const userServiceUrl = this.config.get<string>('USER_SERVICE_URL') || 'http://user-service:3002'
 
     const [authRes, profileRes] = await Promise.all([
-      // Appel vers auth-service (token utilisateur)
       this.http.axiosRef.get(`${authServiceUrl}/api/v1/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
 
-      // Appel vers user-service (token de service)
       this.http.axiosRef.get(`${userServiceUrl}/api/v1/users/me`, {
         headers: {
           Authorization: `Bearer ${this.generateServiceToken()}`,

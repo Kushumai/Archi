@@ -1,29 +1,27 @@
 import {
   Controller,
   Post,
-  Req,
   Body,
   HttpCode,
   HttpStatus,
   UseGuards,
-  BadRequestException,
   UseInterceptors,
   Param,
   Res,
-  NotFoundException,
   Get,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DocumentsService } from './documents.service';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { AuthRequest } from '../common/types/auth-request.type';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { MinioUploadInterceptor } from '../minio/minio.interceptor';
 import { MinioConfigService } from '../minio/minio.config';
+import { ServiceAuthGuard } from '../common/guards/service-auth.guard';
+import { AuthRequest } from '../common/types/auth-request.type';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ServiceAuthGuard)
 @Controller('documents')
 export class DocumentsController {
   constructor(
@@ -37,8 +35,8 @@ export class DocumentsController {
     @Req() req: AuthRequest,
     @Body() dto: CreateDocumentDto,
   ) {
-    const file = (req as any).file;
-    if (!file?.buffer) throw new BadRequestException('File is required');
+    const file = (dto as any).file || (dto as any).buffer || (dto as any).file?.buffer;
+    if (!file?.buffer) throw new Error('File is required');
 
     return this.docs.create(req.user.sub, dto, file);
   }
@@ -50,7 +48,7 @@ export class DocumentsController {
     @Req() req: AuthRequest,
   ) {
     const doc = await this.docs.findOneForOwner(req.user.sub, id);
-    if (!doc) throw new NotFoundException('Document not found');
+    if (!doc) throw new Error('Document not found');
 
     const bucket = this.minio.getBucket();
     const fileName = doc.fileName;
@@ -62,7 +60,7 @@ export class DocumentsController {
     } catch (err: any) {
       console.error('❌ MinIO getObject error:', err);
       if (['NoSuchKey', 'NoSuchObject', 'NoSuchBucket'].includes(err.code)) {
-        throw new NotFoundException('File not found in storage');
+        throw new Error('File not found in storage');
       }
       throw new Error('Internal server error when accessing storage');
     }
@@ -80,7 +78,7 @@ export class DocumentsController {
     @Param('id') id: string,
   ) {
     const doc = await this.docs.findOneForOwner(req.user.sub, id);
-    if (!doc) throw new NotFoundException('Document not found');
+    if (!doc) throw new Error('Document not found');
 
     const bucket = this.minio.getBucket();
     const fileName = doc.fileName;
@@ -99,8 +97,20 @@ export class DocumentsController {
     await this.docs.remove(req.user.sub, id);
   }
 
-  @Get()
-  async getMyDocuments(
+  @Get('user/:id')
+  async findByUserId(
+    @Param('id') userId: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+
+    return this.docs.findAllByOwner(userId, parsedLimit, parsedOffset);
+  }
+
+  @Get('me')
+  async findMyDocuments(
     @Req() req: AuthRequest,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
@@ -109,5 +119,16 @@ export class DocumentsController {
     const parsedOffset = offset ? parseInt(offset, 10) : 0;
 
     return this.docs.findAllByOwner(req.user.sub, parsedLimit, parsedOffset);
+  }
+
+  @Get()
+  async findAllDocuments(
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 100;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+
+    return this.docs.findAll(parsedLimit, parsedOffset);
   }
 }
