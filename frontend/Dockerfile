@@ -9,6 +9,9 @@ RUN npm install
 
 COPY . .
 
+COPY .env .env
+COPY .env.local .env.local
+
 RUN npm run build
 
 EXPOSE 3100

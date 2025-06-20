@@ -30,28 +30,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        const res = await api.post("/auth/refresh", {}, { withCredentials: true })
-        const token = res.data.accessToken
-        
-        setAccessToken(token)
-        storeTokenInApi(token)
-
-        const me = await api.get("/me", { withCredentials: true })
-        setUser(me.data)
+        const res = await api.post("/auth/refresh", {}, { withCredentials: true });
+        const token = res.data.accessToken;
+        setAccessToken(token);
+        storeTokenInApi(token);
+        const me = await api.get("/me", { withCredentials: true });
+        setUser(me.data);
       } catch {
-        setAccessToken(null)
-        storeTokenInApi(null)
-        setUser(null)
+        setAccessToken(null);
+        storeTokenInApi(null);
+        setUser(null);
       }
-    }
+    };
 
-    tryRefresh()
-  }, [])
+    const hasRefreshToken = document.cookie.split(';').some(cookie => cookie.trim().startsWith('refreshToken='));
+
+    if (hasRefreshToken) {
+      tryRefresh();
+    } else {
+      setAccessToken(null);
+      storeTokenInApi(null);
+      setUser(null);
+    }
+  }, []);
 
   const login = async (email: string, password: string) => {
     try {
       const res = await api.post("/auth/login", { email, password }, { withCredentials: true })
       const token = res.data.accessToken
+
       setAccessToken(token)
       storeTokenInApi(token)
 

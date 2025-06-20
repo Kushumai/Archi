@@ -1,14 +1,14 @@
 import {
   Controller,
   Post,
+  Body,
   Req,
   Res,
-  Body,
   HttpException,
   HttpStatus,
-} from '@nestjs/common'
-import { Response, Request } from 'express'
-import { AuthService } from './auth.service'
+} from '@nestjs/common';
+import { Request, Response } from 'express';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -16,48 +16,43 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: { email: string; username: string; password: string }) {
-    return this.authService.forwardRegister(body)
+    return this.authService.forwardRegister(body);
   }
 
   @Post('login')
-  async login(
-    @Body() body: { email: string; password: string },
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const { accessToken, refreshToken } = await this.authService.forwardLogin(body)
+  async login(@Body() body: { email: string; password: string }, @Res() res: Response) {
+    const { data, setCookie } = await this.authService.forwardLogin(body);
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      path: '/',
-      sameSite: 'lax',
-      secure: false,
-    })
+  if (setCookie) {
+    const cookieHeader = Array.isArray(setCookie) ? setCookie : [setCookie];
+    res.setHeader('Set-Cookie', cookieHeader);
+  }
 
-    return { accessToken }
+    return res.json(data);
   }
 
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = req.cookies?.refreshToken
-    if (!refreshToken) {
-      throw new HttpException('No refresh token', HttpStatus.UNAUTHORIZED)
+    const cookieHeader = req.headers.cookie
+      console.log('🍪 BFF → Received cookie header from client:', cookieHeader)
+    if (!cookieHeader) {
+      throw new HttpException('No cookie header', HttpStatus.UNAUTHORIZED)
     }
 
-    const { accessToken, newRefreshToken } = await this.authService.forwardRefresh(refreshToken)
+    const { data, setCookie } = await this.authService.forwardRefresh(cookieHeader)
 
-    res.cookie('refreshToken', newRefreshToken, {
-      httpOnly: true,
-      path: '/',
-      sameSite: 'lax',
-      secure: false,
-    })
-
-    return { accessToken }
+    if (setCookie) {
+      const cookieHeader = Array.isArray(setCookie) ? setCookie : [setCookie];
+      res.setHeader('Set-Cookie', cookieHeader);
+    } else {
+      console.log('⚠️ BFF → No Set-Cookie received from auth-service');
+    }
+    return data
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refreshToken', { path: '/' })
-    return { message: 'Déconnecté' }
+    res.clearCookie('refreshToken', { path: '/' });
+    return { message: 'Déconnecté' };
   }
 }

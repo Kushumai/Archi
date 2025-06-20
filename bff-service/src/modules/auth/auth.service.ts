@@ -23,30 +23,29 @@ export class AuthService {
     try {
       const res$ = this.http.post(`${AUTH_SERVICE_URL}/api/v1/auth/login`, body, {
         withCredentials: true,
+        validateStatus: () => true,
       })
-      const { data } = await firstValueFrom(res$)
-      return data
+      const response = await firstValueFrom(res$)
+      return {
+        data: response.data,
+        setCookie: response.headers['set-cookie'],
+      }
     } catch (error) {
       this.handleAxiosError(error)
     }
   }
 
-  async forwardRefresh(refreshToken: string) {
+  async forwardRefresh(cookieHeader: string) {
     try {
-      const res$ = this.http.post(
-        `${AUTH_SERVICE_URL}/api/v1/auth/refresh`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            Cookie: `refreshToken=${refreshToken}`,
-          },
-        },
-      )
-      const { data } = await firstValueFrom(res$)
+      const res$ = this.http.post(`${AUTH_SERVICE_URL}/api/v1/auth/refresh`, {}, {
+        headers: { cookie: cookieHeader },
+        withCredentials: true,
+        validateStatus: () => true,
+      })
+      const response = await firstValueFrom(res$)
       return {
-        accessToken: data.accessToken,
-        newRefreshToken: data.refreshToken,
+        data: response.data,
+        setCookie: response.headers['set-cookie'],
       }
     } catch (error) {
       this.handleAxiosError(error)
