@@ -6,20 +6,16 @@
   "tailwind": {
     "config": "",
     "css": "src/app/globals.css",
-    "baseColor": "neutral",
+    "baseColor": "zinc",
     "cssVariables": true,
     "prefix": ""
   },
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
+    "ui": "@/components/ui",
     "lib": "@/lib",
-    "hooks": "@/hooks",
-    "contexts": "@/contexts",
-    "atoms": "@/components/atoms",
-    "molecules": "@/components/molecules",
-    "organisms": "@/components/organisms",
-    "templates": "@/components/templates"
+    "hooks": "@/hooks"
   },
   "iconLibrary": "lucide"
 }

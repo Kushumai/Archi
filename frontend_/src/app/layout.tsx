@@ -1,10 +1,11 @@
-import "./globals.css";
-import { AuthProvider } from "@/contexts/authContext";
+import "@/styles/globals.css"
+import type { Metadata } from "next"
+import { AuthProvider } from "@/contexts/authContext"
 
-export const metadata = {
-  title: "Accueil",
-  description: "Test AuthContext",
-};
+export const metadata: Metadata = {
+  title: "Ton App",
+  description: "Description",
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,5 +16,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }
