@@ -53,8 +53,4 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@layer base {
-  body {
-    @apply bg-red-100 text-neutral-900 dark:bg-zinc-900 dark:text-white;
-  }
-}
+

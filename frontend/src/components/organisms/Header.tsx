@@ -1,44 +1,47 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { ThemeSwitcher } from "@/components/atoms/ThemeSwitcher"
-
-const navItems = [
-  { href: "/", label: "Accueil" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/documents", label: "Documents" },
-]
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/authContext";
+import { Button } from "@/components/atoms/Button";
 
 export function Header() {
-  const pathname = usePathname()
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    logout();
+    router.push("/");
+  };
+
+  // Nouvelle fonction pour la navigation sur le logo
+  const handleGoHome = () => {
+    router.push("/");
+  };
 
   return (
-    <header className="w-full border-b bg-white dark:bg-zinc-900 dark:border-zinc-700">
-      <div className="max-w-screen-xl mx-auto flex items-center justify-between px-4 py-3">
-        <div className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
-          Archi
-        </div>
-
-        <nav className="flex gap-4 items-center">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm font-medium transition-colors",
-                pathname === item.href
-                  ? "text-primary underline underline-offset-4"
-                  : "text-zinc-700 hover:text-black dark:text-zinc-300 dark:hover:text-white"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <ThemeSwitcher />
-        </nav>
+    <header className="flex items-center justify-between px-4 md:px-8 lg:px-16 py-4 border-b border-border bg-white dark:bg-zinc-900 text-neutral-900 dark:text-white">
+      {/* Logo Texte cliquable sans style de lien */}
+      <div
+        onClick={handleGoHome}
+        className="cursor-pointer text-2xl font-black tracking-tight"
+      >
+        Archi
       </div>
+
+      {/* Bouton dynamique de connexion/déconnexion */}
+      {user ? (
+        <Button variant="default" size="sm" onClick={handleLogout}>
+          Déconnexion
+        </Button>
+      ) : (
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => router.push("/login")}
+        >
+          Se connecter
+        </Button>
+      )}
     </header>
-  )
+  );
 }
