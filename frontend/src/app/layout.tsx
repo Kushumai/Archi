@@ -14,7 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className="font-sans antialiased bg-background text-foreground">
-        {/* AuthProvider doit envelopper tout le rendu */}
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Header />
