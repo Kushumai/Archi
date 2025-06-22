@@ -1,57 +1,66 @@
 "use client"
 
-import { useAuth } from "@/contexts/authContext"
 import { Button } from "@/components/atoms/Button"
-import { Input } from "@/components/atoms/Input"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/atoms/Card"
-import { Alert } from "@/components/atoms/Alert"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/atoms/Card"
 
 export default function HomePage() {
-  const { user, login, logout, isAuthenticated } = useAuth()
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-10 bg-zinc-50 text-gray-900 px-4 py-20">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Bienvenue 🎉</CardTitle>
-          <CardDescription>
-            Cette carte utilise les composants <code>shadcn/ui</code> + design system maison
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert
-            variant={isAuthenticated ? "success" : "error"}
-            title={isAuthenticated ? "Connecté ✅" : "Déconnecté ❌"}
-            description={
-              isAuthenticated
-                ? `Connecté avec ${user?.email}`
-                : "Vous devez vous connecter pour accéder au dashboard"
-            }
-          />
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Email</label>
-            <Input placeholder="demo@site.com" defaultValue="demo@site.com" disabled />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Mot de passe</label>
-            <Input placeholder="demo" type="password" defaultValue="demo" disabled />
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button onClick={() => login("demo@site.com", "demo")}>Connexion</Button>
-          <Button variant="secondary" onClick={logout}>
-            Déconnexion
+    <main className="min-h-screen flex flex-col items-center px-4 py-20 bg-background text-foreground">
+      <section className="w-full max-w-4xl text-center space-y-6 mb-16">
+        <h1 className="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+          Simplifiez la gestion de vos biens immobiliers.
+        </h1>
+        <p className="text-lg sm:text-xl text-muted-foreground">
+          Archi centralise tous vos documents, automatise vos démarches, et vous connecte avec les bons interlocuteurs.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+          <Button size="lg" onClick={() => window.location.href = "/register"}>
+            Créer un compte
           </Button>
-        </CardFooter>
-      </Card>
+          <Button variant="secondary" size="lg" onClick={() => window.location.href = "/login"}>
+            Se connecter
+          </Button>
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Tout au même endroit</CardTitle>
+          </CardHeader>
+          <CardContent>
+            Fini les papiers éparpillés : tout est organisé et consultable à tout moment.
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Partage maîtrisé</CardTitle>
+          </CardHeader>
+          <CardContent>
+            Transmettez vos documents aux personnes de confiance, sans prise de tête.
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Alertes utiles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            Soyez averti des échéances importantes avant qu’il ne soit trop tard.
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="mt-20 w-full max-w-3xl text-center">
+        <h2 className="text-2xl font-semibold mb-4">Gérez vos biens, simplement.</h2>
+        <p className="text-muted-foreground text-base sm:text-lg mb-6">
+          Archi vous accompagne au quotidien pour sécuriser, valoriser et transmettre votre patrimoine immobilier.
+        </p>
+        <Button size="lg" onClick={() => window.location.href = "/register"}>
+          Démarrer maintenant
+        </Button>
+      </section>
     </main>
   )
 }

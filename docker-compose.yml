@@ -16,10 +16,14 @@ services:
     networks:
       - archi_net
 
+
   frontend:
     container_name: archi_frontend
     build:
       context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     env_file:
       - ./frontend/.env
     ports:
