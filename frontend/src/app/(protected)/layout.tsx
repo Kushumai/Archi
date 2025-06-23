@@ -1,6 +1,8 @@
 "use client";
-import ProtectedLayout from "@/components/templates/ProtectedRoute";
+
+import * as React from "react";
+import ProtectedRoute from "@/components/templates/ProtectedRoute";
 
 export default function PrivateGroupLayout({ children }: { children: React.ReactNode }) {
-  return <ProtectedLayout>{children}</ProtectedLayout>;
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }

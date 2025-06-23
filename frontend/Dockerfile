@@ -12,7 +12,7 @@ COPY . .
 COPY .env .env
 COPY .env.local .env.local
 
-RUN npm run build
+RUN npm run build || (npm run lint && false)
 
 EXPOSE 3100
 

@@ -5,38 +5,102 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 import { Button } from "@/components/atoms/Button";
 import { Input } from "@/components/atoms/Input";
+import { api } from "@/lib/api";
 
 type View = "upload" | "documents" | "profile";
 
+interface Document {
+  id: string;
+  name: string;
+}
+
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [isAuthenticated, router]);
-
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  const [view, setView] = useState<View>("upload");
+  const [view, setView] = useState<View>("documents");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [docs, setDocs] = useState<string[]>([]);
+  const [docs, setDocs] = useState<Document[]>([]);
+  const [fetching, setFetching] = useState(false);
+
+  // Protection & fetch des documents
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.replace("/login");
+    } else if (!loading && isAuthenticated) {
+      fetchDocs();
+    }
+  }, [loading, isAuthenticated, router]);
+
+  // Auto-switch vers "documents" si on en a
+  useEffect(() => {
+    if (docs.length > 0 && view !== "documents") {
+      setView("documents");
+    }
+  }, [docs, view]);
+
+  const fetchDocs = async () => {
+    setFetching(true);
+    try {
+      const res = await api.get<Document[]>("me/documents");
+      setDocs(res.data);
+    } catch (err) {
+      console.error("Erreur fetch docs", err);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setSelectedFile(e.target.files[0]);
+    setSelectedFile(e.target.files?.[0] || null);
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) return;
+    const form = new FormData();
+    form.append("file", selectedFile);
+    setFetching(true);
+    try {
+      await api.post("/me/documents", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setSelectedFile(null);
+      await fetchDocs();
+      setView("documents");
+    } catch (err) {
+      console.error("Erreur upload", err);
+    } finally {
+      setFetching(false);
     }
   };
 
-  const handleUpload = () => {
-    if (!selectedFile) return;
-    setDocs((prev) => [...prev, selectedFile.name]);
-    setSelectedFile(null);
+  const handleDownload = async (doc: Document) => {
+    try {
+      const res = await api.get(`/me/documents/${doc.id}/file`, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([res.data], {
+        type: res.headers["content-type"] || "application/octet-stream",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+
+      a.setAttribute("download", doc.name);
+
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Erreur download", err);
+    }
   };
+
+  if (loading || !isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)]">
@@ -68,8 +132,8 @@ export default function DashboardPage() {
             </h2>
             <div className="flex items-center gap-4">
               <Input type="file" onChange={handleFileChange} />
-              <Button onClick={handleUpload} disabled={!selectedFile}>
-                Envoyer
+              <Button onClick={handleUpload} disabled={!selectedFile || fetching}>
+                {fetching ? "Envoi..." : "Envoyer"}
               </Button>
             </div>
             {selectedFile && (
@@ -82,21 +146,28 @@ export default function DashboardPage() {
 
         {view === "documents" && (
           <section className="space-y-4">
-            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
-              Mes documents
-            </h2>
-            {docs.length === 0 ? (
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+                Mes documents
+              </h2>
+            </div>
+            {fetching ? (
+              <p className="text-neutral-700 dark:text-neutral-300">Chargement…</p>
+            ) : docs.length === 0 ? (
               <p className="text-neutral-700 dark:text-neutral-300">
                 Aucun document pour le moment.
               </p>
             ) : (
               <ul className="space-y-2">
-                {docs.map((name, idx) => (
+                {docs.map((doc) => (
                   <li
-                    key={idx}
-                    className="p-2 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
+                    key={doc.id}
+                    className="flex justify-between p-2 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
                   >
-                    {name}
+                    <span>{doc.name}</span>
+                    <Button size="sm" onClick={() => handleDownload(doc)}>
+                      Télécharger
+                    </Button>
                   </li>
                 ))}
               </ul>

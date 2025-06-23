@@ -1,97 +1,108 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { useRouter } from "next/navigation"
-import { api, setAccessToken as storeTokenInApi } from "@/lib/api"
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
 
 interface User {
-  id: string
-  email: string
-  role?: string
-  username?: string
-  profile?: string
+  id: string;
+  email: string;
+  role?: string;
+  username?: string;
+  profile?: unknown;
 }
 
 interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
-  accessToken: string | null
-  login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  user: User | null;
+  isAuthenticated: boolean;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
-  const [user, setUser] = useState<User | null>(null)
-  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
+  // Au démarrage, on recharge l’utilisateur si on a un token en localStorage
   useEffect(() => {
-    const tryRefresh = async () => {
-      try {
-        const res = await api.post("/auth/refresh", {}, { withCredentials: true });
-        const token = res.data.accessToken;
-        setAccessToken(token);
-        storeTokenInApi(token);
-        const me = await api.get("/me", { withCredentials: true });
-        setUser(me.data);
-      } catch {
-        setAccessToken(null);
-        storeTokenInApi(null);
-        setUser(null);
-      }
-    };
-
-    const hasRefreshToken = document.cookie.split(';').some(cookie => cookie.trim().startsWith('refreshToken='));
-
-    if (hasRefreshToken) {
-      tryRefresh();
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      api
+        .get<User>("/me")
+        .then((res) => {
+          setUser(res.data);
+        })
+        .catch(() => {
+          localStorage.removeItem("accessToken");
+          delete api.defaults.headers.common["Authorization"];
+          setUser(null);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     } else {
-      setAccessToken(null);
-      storeTokenInApi(null);
-      setUser(null);
+      setLoading(false);
     }
   }, []);
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      const res = await api.post("/auth/login", { email, password }, { withCredentials: true })
-      const token = res.data.accessToken
+      // POST /auth/login renvoie { accessToken }
+      const res = await api.post<{ accessToken: string }>(
+        "/auth/login",
+        { email, password }
+      );
+      const token = res.data.accessToken;
 
-      setAccessToken(token)
-      storeTokenInApi(token)
+      // on stocke le token côté client
+      localStorage.setItem("accessToken", token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      const me = await api.get("/me", { withCredentials: true })
-      setUser(me.data)
-
-      router.push("/dashboard")
-    } catch {
-      throw new Error("Échec de la connexion")
+      // on recharge l’utilisateur
+      const me = await api.get<User>("/me");
+      setUser(me.data);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const logout = async () => {
-    try {
-      await api.post("/auth/logout", {}, { withCredentials: true })
-    } catch {
-      console.error("Logout failed")
-    }
-    setAccessToken(null)
-    storeTokenInApi(null)
-    setUser(null)
-    router.push("/login")
-  }
+  const logout = () => {
+    // on efface le token côté client
+    localStorage.removeItem("accessToken");
+    delete api.defaults.headers.common["Authorization"];
+    setUser(null);
+    router.push("/login");
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!accessToken, accessToken, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        loading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error("useAuth must be used within an AuthProvider")
-  return context
-}
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+};

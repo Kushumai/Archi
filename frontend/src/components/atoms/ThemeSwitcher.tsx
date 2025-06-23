@@ -6,10 +6,9 @@ import { Moon, Sun } from "lucide-react"
 import { Button } from "@/components/atoms/Button"
 
 export function ThemeSwitcher() {
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
-  // Important pour éviter les erreurs de SSR
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -24,7 +23,7 @@ export function ThemeSwitcher() {
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="sm"
       aria-label="Changer le thème"
       onClick={toggleTheme}
     >

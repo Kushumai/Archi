@@ -26,8 +26,8 @@ export class DocumentsService {
 
     const document = await this.prisma.document.create({
       data: {
-        title: dto.title,
-        description: dto.description,
+        title: dto.title ?? '',
+        description: dto.description ?? '',
         fileName,
         ownerId: userId,
       },

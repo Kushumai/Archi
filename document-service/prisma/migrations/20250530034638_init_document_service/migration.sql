@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "documents" (
+CREATE TABLE "Documents" (
     "id" TEXT NOT NULL,
     "ownerId" TEXT NOT NULL,
     "title" TEXT NOT NULL,

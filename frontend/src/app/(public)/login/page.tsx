@@ -2,24 +2,31 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import { useAuth } from "@/contexts/authContext";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     try {
       await login(email, password);
-      // la redirection vers /dashboard est déjà faite dans login()
-    } catch (err: any) {
-      setError(err.message || "Erreur inconnue");
+      router.replace("/dashboard");
+    } catch (err: unknown) {
+      // On gère l'erreur de manière typée
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erreur inconnue");
+      }
     }
   };
 
@@ -51,7 +58,9 @@ export default function LoginPage() {
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setEmail(e.currentTarget.value)
+            }
             required
           />
         </div>
@@ -68,7 +77,9 @@ export default function LoginPage() {
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(e.currentTarget.value)
+            }
             required
           />
         </div>
@@ -88,5 +99,5 @@ export default function LoginPage() {
         </p>
       </form>
     </div>
-  );
+);
 }
