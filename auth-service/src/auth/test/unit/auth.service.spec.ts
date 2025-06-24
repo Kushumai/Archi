@@ -1,6 +1,6 @@
 import { UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { AuthService } from '../../auth/auth.service';
+import { AuthService } from '../../auth.service';
 
 jest.mock('argon2', () => ({
   verify: jest.fn(),
