@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className="font-sans antialiased bg-background text-foreground">
+      <body className="font-sans antialiased bg-background text-foreground flex flex-col min-h-screen">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Header />
-            <main className="min-h-screen">{children}</main>
+              <main className="flex flex-1 overflow-auto">{children}</main>
             <Footer />
           </ThemeProvider>
         </AuthProvider>

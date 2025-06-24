@@ -16,6 +16,7 @@ import {
   Req,
   UploadedFile,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { DocumentsService } from './documents.service';
@@ -126,18 +127,22 @@ export class DocumentsController {
     return this.docs.findAllByOwner(req.user.sub, parsedLimit, parsedOffset);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('me')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(MinioUploadInterceptor)
   async uploadMyDocuments(
     @Req() req: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
+    @Body() body: { title: string; description?: string; category: string }
   ) {
-    // On n’utilise plus CreateDocumentDto ici
-    // Si besoin, titre/description viendront plus tard via d’autres champs @Body()
-    return this.docs.create(req.user.sub, { title: '', description: '' }, file);
+    
+    const { title, description, category } = body;
+      if (!title || !category || !file) {
+    throw new BadRequestException('Titre, catégorie et fichier obligatoires.');
   }
-  
+    return this.docs.create(req.user.sub, { title, description, category }, file);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('me/:id/file')
   async downloadMyDocument(
@@ -145,7 +150,6 @@ export class DocumentsController {
     @Res() res: Response,
     @Req() req: AuthRequest,
   ) {
-    // On vérifie bien que l’utilisateur est owner via JwtAuthGuard + req.user.sub
     const doc = await this.docs.findOneForOwner(req.user.sub, id);
     if (!doc) throw new NotFoundException('Document not found');
     const bucket = this.minio.getBucket();

@@ -8,7 +8,7 @@ export class DocumentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly minio: MinioConfigService,
-  ) { }
+  ) {}
 
   async create(userId: string, dto: CreateDocumentDto, file: Express.Multer.File) {
     const fileName = `${userId}/${Date.now()}-${file.originalname}`;
@@ -23,11 +23,11 @@ export class DocumentsService {
       }
     );
 
-
     const document = await this.prisma.document.create({
       data: {
-        title: dto.title ?? '',
+        title: dto.title,
         description: dto.description ?? '',
+        category: dto.category,
         fileName,
         ownerId: userId,
       },
@@ -38,10 +38,10 @@ export class DocumentsService {
 
   async findAllByOwner(userId: string, limit = 10, offset = 0) {
     return this.prisma.document.findMany({
-        where: { ownerId: userId },
-        orderBy: { createdAt: 'desc' },
-        skip: offset,
-        take: limit,
+      where: { ownerId: userId },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
     });
   }
 
@@ -64,23 +64,22 @@ export class DocumentsService {
     const fileNames: string[] = [];
 
     return new Promise((resolve, reject) => {
-        stream.on('data', (obj) => {
-            if (obj.name) {
-              fileNames.push(obj.name);
-            }
-        });
-        stream.on('end', () => {
-            resolve(fileNames);
-        });
-        stream.on('error', (err) => {
-            reject(err);
-        });
+      stream.on('data', (obj) => {
+        if (obj.name) {
+          fileNames.push(obj.name);
+        }
+      });
+      stream.on('end', () => {
+        resolve(fileNames);
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
     });
   }
 
   async remove(userId: string, documentId: string) {
     const document = await this.findOneForOwner(userId, documentId);
-
 
     await this.minio.client.removeObject(
       this.minio.getBucket(),

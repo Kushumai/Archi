@@ -15,8 +15,8 @@ model User {
   lastName      String
   discriminator String
 
-  avatarUrl     String?  // à compléter plus tard via /profile
-  bio           String?  // idem
+  avatarUrl     String?  // TODO
+  bio           String?  // TODO
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // Au démarrage, on recharge l’utilisateur si on a un token en localStorage
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
@@ -59,18 +58,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // POST /auth/login renvoie { accessToken }
       const res = await api.post<{ accessToken: string }>(
         "/auth/login",
         { email, password }
       );
       const token = res.data.accessToken;
 
-      // on stocke le token côté client
       localStorage.setItem("accessToken", token);
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // on recharge l’utilisateur
       const me = await api.get<User>("/me");
       setUser(me.data);
     } finally {
@@ -79,7 +75,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    // on efface le token côté client
     localStorage.removeItem("accessToken");
     delete api.defaults.headers.common["Authorization"];
     setUser(null);

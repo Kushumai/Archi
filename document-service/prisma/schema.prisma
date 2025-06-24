@@ -12,7 +12,8 @@ model Document {
   id        String   @id @default(uuid())
   ownerId   String
   title     String
-  fileName  String
-  createdAt DateTime @default(now())
   description String?
+  fileName  String
+  category  String
+  createdAt DateTime @default(now())
 }

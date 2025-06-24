@@ -23,22 +23,30 @@ export function Header() {
   let actionOnClick: () => void;
 
   if (user) {
-    actionLabel = "Déconnexion";
+    actionLabel = "Sortir";
     actionOnClick = handleLogout;
   } else if (pathname === "/login") {
-    actionLabel = "S’inscrire";
+    actionLabel = "Emménager";
     actionOnClick = () => router.push("/register");
   } else if (pathname === "/register") {
-    actionLabel = "Se connecter";
+    actionLabel = "Entrer";
     actionOnClick = () => router.push("/login");
   } else {
-    actionLabel = "Se connecter";
+    actionLabel = "Entrer";
     actionOnClick = () => router.push("/login");
   }
 
   return (
-    <header className="flex items-center justify-between px-4 md:px-8 lg:px-16 py-4 border-b border-border bg-white dark:bg-zinc-900 text-neutral-900 dark:text-white">
-      {/* Logo Texte cliquable */}
+    <header
+      className="
+        fixed top-0 left-0 right-0 z-50
+        flex items-center justify-between
+        px-4 md:px-8 lg:px-16 py-4
+        border-b border-border
+        bg-white dark:bg-zinc-900
+        text-neutral-900 dark:text-white
+      "
+    >
       <div
         onClick={handleGoHome}
         className="cursor-pointer text-2xl font-black tracking-tight"
@@ -46,7 +54,6 @@ export function Header() {
         Archi
       </div>
 
-      {/* Bouton de droite */}
       <Button size="sm" onClick={actionOnClick}>
         {actionLabel}
       </Button>
