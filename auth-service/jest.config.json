@@ -1,0 +1,16 @@
+{
+  "displayName": "auth-service",
+  "preset": "ts-jest/presets/default-esm",
+  "testEnvironment": "node",
+  "globals": {
+    "ts-jest": {
+      "useESM": true,
+      "tsconfig": "<rootDir>/tsconfig.json"
+    }
+  },
+  "roots": ["<rootDir>/src"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+  "collectCoverage": true,
+  "coverageDirectory": "./coverage",
+  "testMatch": ["**/src/**/test/**/*.spec.ts"]
+}
