@@ -13,7 +13,10 @@ type View = "upload" | "documents" | "profile";
 
 interface Document {
   id: string;
-  name: string;
+  title: string;
+  description?: string;
+  category: string;
+  fileName: string;
 }
 
 export default function DashboardPage() {
@@ -106,7 +109,7 @@ export default function DashboardPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.setAttribute("download", doc.name);
+      a.setAttribute("download", doc.fileName);
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -134,7 +137,6 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1">
-      {/* Sidebar : largeur animée, contenu masqué */}
       <Sidebar
         view={view}
         setView={setView}
@@ -144,7 +146,6 @@ export default function DashboardPage() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Contenu principal */}
       <main className="flex-1 overflow-auto bg-white dark:bg-zinc-900 p-6">
         {feedback && (
           <div
@@ -236,9 +237,10 @@ export default function DashboardPage() {
                 {docs.map((doc) => (
                   <li
                     key={doc.id}
-                    className="flex justify-between items-center p-3 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
+                    className="flex justify-between items-start p-3 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
                   >
-                    <span className="truncate">{doc.name}</span>
+                    <span className="truncate">{doc.title}</span>
+                    <span className="truncate">{doc.category}</span>
                     <Button size="sm" onClick={() => handleDownload(doc)}>
                       Télécharger
                     </Button>

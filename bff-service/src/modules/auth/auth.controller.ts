@@ -34,7 +34,6 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const cookieHeader = req.headers.cookie
-      console.log('🍪 BFF → Received cookie header from client:', cookieHeader)
     if (!cookieHeader) {
       throw new HttpException('No cookie header', HttpStatus.UNAUTHORIZED)
     }
