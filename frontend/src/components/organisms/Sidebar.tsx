@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { X, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 type View = "upload" | "documents" | "profile";
 
@@ -16,13 +16,13 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ view, setView, user,  isOpen, onOpen, onClose }) => {
   return (
     <aside
-      className={" flex flex-col transition-[width] duration-200 bg-white dark:bg-zinc-900 border-r border-black overflow-hidden " + (isOpen ? "w-64" : "w-12")}
+      className={"md:w-64 flex flex-col transition-[width] duration-200 bg-white dark:bg-zinc-900 border-r border-black overflow-hidden " + (isOpen ? "w-64" : "w-12")}
       aria-label="Menu principal"
     >
       <button
         onClick={isOpen ? onClose : onOpen}
         className={cn(
-          "p-2",
+          "md:hidden p-2",
           isOpen ? "self-end" : "self-center"
         )}
         aria-label={isOpen ? "Fermer le menu" : "Ouvrir le menu"}
@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ view, setView, user,  isOpen, 
       </button>
 
   {/* Nav items : cachés quand fermé */}
-  <nav className={cn("flex flex-col items-start w-full mt-4 space-y-4 pl-4", !isOpen && "hidden")}>
+  <nav className={cn("md:flex md:flex-col md:items-start md:w-full md:mt-8 md:space-y-4 md:pl-4 flex flex-col items-start w-full mt-8 space-y-4 pl-4", (!isOpen && "hidden"))}>
     <button onClick={() => setView("upload")} className={cn("block w-full text-left", view === "upload" ? "font-bold" : "font-medium")}>
       Upload
     </button>
@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ view, setView, user,  isOpen, 
   </nav>
 
   {/* Profil : caché aussi */}
-  <div className={cn("mt-auto mb-4 ml-4", !isOpen && "hidden")}>
+  <div className={cn(" md:block md:mt-auto md:mb-4 mb:ml-4 mt-auto mb-4 ml-4", !isOpen && "hidden")}>
     <button onClick={() => setView("profile")} className={cn(view === "profile" ? "font-bold" : "font-medium")}>
       Profil
     </button>

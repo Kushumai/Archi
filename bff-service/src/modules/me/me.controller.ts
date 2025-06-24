@@ -7,12 +7,19 @@ import {
   UseGuards,
   UnauthorizedException,
   Header,
+  BadRequestException,
+  Body,
+  Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { MeService } from './me.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as FormData from 'form-data';
 
 @Controller('me')
 export class MeController {
@@ -71,5 +78,47 @@ export class MeController {
     }
 
     return upstream.data.pipe(res);
+  }
+
+@UseGuards(JwtAuthGuard)
+  @Post('documents')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadMyDocuments(
+    @Req() req: Request,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { title: string; description?: string; category: string },
+  ) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid Authorization header');
+    }
+    const { title, description, category } = body;
+    if (!title || !category || !file) {
+      throw new BadRequestException('Titre, catégorie et fichier obligatoires.');
+    }
+
+    const form = new FormData();
+    form.append('file', file.buffer, {
+      filename: file.originalname,
+      contentType: file.mimetype,
+    });
+    form.append('title', title);
+    form.append('category', category);
+    if (description) {
+      form.append('description', description);
+    }
+
+    const response = await this.httpService.axiosRef.post(
+      `${this.documentServiceUrl}/documents/me`,
+      form,
+      {
+        headers: {
+          Authorization: auth,
+          ...form.getHeaders(),
+        },
+      },
+    );
+
+    return response.data;
   }
 }

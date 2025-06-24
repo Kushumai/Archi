@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <Header />
-              <main className="flex flex-1 overflow-auto">{children}</main>
+              {children}
             <Footer />
           </ThemeProvider>
         </AuthProvider>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { isAxiosError } from "axios";
 import { useAuth } from "@/contexts/authContext";
 import { Sidebar } from "@/components/organisms/Sidebar";
 import { Button } from "@/components/atoms/Button";
@@ -19,7 +20,7 @@ export default function DashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
-  const [view, setView] = useState<View>("documents");
+  const [view, setView] = useState<View>("upload");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState<string>("");
   const [category, setCategory] = useState<string>("autre");
@@ -72,22 +73,26 @@ export default function DashboardPage() {
       await api.post("/me/documents", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setFeedback({ type: "success", text: "Document envoyé avec succès !" });
+      setFeedback({ type: "success", text: "Document envoyé avec succès !" });
       setSelectedFile(null);
       setTitle("");
       setCategory("autre");
       if (fileInputRef.current) fileInputRef.current.value = "";
       await fetchDocs();
       setView("documents");
-    } catch (err: any) {
+    } catch (err: unknown) {
       let msg = "Échec : l'envoi n'a pas abouti. Veuillez réessayer.";
-      if (err?.response?.status === 500) msg = "Échec : problème serveur. Veuillez réessayer.";
-      else if (err?.response?.status === 400) msg = "Échec : certains champs sont manquants ou invalides.";
+      if (isAxiosError(err)) {
+        const status = err.response?.status;
+        if (status === 500) {
+          msg = "Échec : problème serveur. Veuillez réessayer.";
+        } else if (status === 400) {
+          msg = "Échec : certains champs sont manquants ou invalides.";
+        }
+      }
       setFeedback({ type: "error", text: msg });
-    } finally {
-      setFetching(false);
-    }
-  };
+      }
+    };
 
   const handleDownload = async (doc: Document) => {
     try {
@@ -128,7 +133,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="mt-16 flex flex-1">
+    <div className="flex flex-1">
       {/* Sidebar : largeur animée, contenu masqué */}
       <Sidebar
         view={view}
@@ -208,7 +213,7 @@ export default function DashboardPage() {
                 <Input id="file" type="file" ref={fileInputRef} onChange={handleFileChange} required />
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="flex flex-col flex-shrink-0 justify-end">
                 <Button type="submit" disabled={!title.trim() || !selectedFile || fetching}>
                   {fetching ? "Envoi..." : "Envoyer"}
                 </Button>
