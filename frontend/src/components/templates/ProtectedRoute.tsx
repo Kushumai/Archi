@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       if (process.env.NODE_ENV === "development") {
-        console.warn("Utilisateur non authentifié. Redirection vers /login");
+        console.warn("Utilisateur non authentifié. Redirection vers la page login");
       }
       router.push(`/login?redirect=${pathname}`);
     }

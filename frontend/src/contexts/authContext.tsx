@@ -10,7 +10,7 @@ import React, {
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-interface User {
+export interface User {
   id: string;
   email: string;
   role?: string;
