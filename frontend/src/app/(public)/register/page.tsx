@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/atoms/Input";
+import Input from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/authContext";

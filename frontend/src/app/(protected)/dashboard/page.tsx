@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
-import { Input } from "@/components/atoms/Input";
+import Input from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import { useDocuments } from "@/hooks/useDocuments";
