@@ -21,7 +21,6 @@ export default function LoginPage() {
       await login(email, password);
       router.replace("/dashboard");
     } catch (err: unknown) {
-      // On gère l'erreur de manière typée
       if (err instanceof Error) {
         setError(err.message);
       } else {

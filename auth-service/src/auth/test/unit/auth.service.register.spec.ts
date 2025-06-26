@@ -25,8 +25,6 @@ describe('AuthService.register (unit)', () => {
   };
 
   beforeAll(() => {
-    // Supprimer l'affichage de console.error dans les tests
-    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     service = new AuthService(
       jwtMock,

@@ -1,4 +1,3 @@
-// document-service/src/document/document.module.ts
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DocumentsService } from './documents.service';

@@ -1,4 +1,3 @@
-// bff-service/src/modules/me/me.service.ts
 import {
   Injectable,
   UnauthorizedException,

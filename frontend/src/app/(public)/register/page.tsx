@@ -13,7 +13,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  // États pour chaque champ + erreur + chargement
   const [email, setEmail] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

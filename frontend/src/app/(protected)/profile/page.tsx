@@ -1,4 +1,3 @@
-// src/app/(protected)/profile/page.tsx
 "use client"
 
 import { useAuth } from "@/contexts/authContext"

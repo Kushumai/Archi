@@ -1,5 +1,3 @@
-// document-service/src/documents/documents.controller.ts
-
 import {
   Controller,
   Post,

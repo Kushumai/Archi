@@ -1,5 +1,3 @@
-// document-service/src/minio/minio.config.ts
-
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';

@@ -1,0 +1,30 @@
+{
+  "roots": ["<rootDir>/src"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+  "preset": "ts-jest/presets/default-esm",
+  "transform": {
+    "^.+\\.(ts|tsx)$": ["ts-jest", { "useESM": true }]
+  },
+  "testMatch": [
+    "<rootDir>/src/test/unit/**/*.spec.ts",
+    "<rootDir>/src/test/integration/**/*.spec.ts"
+  ],
+  "transformIgnorePatterns": ["node_modules"],
+  "moduleNameMapper": {
+    "\\.(pdf|jpg|jpeg|png)$": "<rootDir>/src/test/fixtures/emptyMock.js"
+  },
+  "testTimeout": 20000,
+  "collectCoverageFrom": [
+    "<rootDir>/src/**/*.(ts|tsx)",
+    "!<rootDir>/src/test/**"
+  ],
+  "coverageDirectory": "<rootDir>/coverage",
+  "coverageThreshold": {
+    "global": {
+      "branches": 30,
+      "functions": 30,
+      "lines": 50,
+      "statements": 50
+    }
+  }
+}
