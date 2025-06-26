@@ -51,6 +51,8 @@ export default function RegisterPage() {
   };
 
   return (
+    <main role="main">
+    <h1 className="sr-only">Inscription</h1>
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-900 px-4">
       <form
         onSubmit={handleSubmit}
@@ -157,5 +159,6 @@ export default function RegisterPage() {
         </p>
       </form>
     </div>
+    </main>
   );
 }

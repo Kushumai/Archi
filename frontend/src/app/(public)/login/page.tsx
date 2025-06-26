@@ -30,6 +30,8 @@ export default function LoginPage() {
   };
 
   return (
+    <main role="main">
+    <h1 className="sr-only">Connexion</h1>
     <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] bg-zinc-50 dark:bg-zinc-900 px-4">
       <form
         onSubmit={handleSubmit}
@@ -98,5 +100,6 @@ export default function LoginPage() {
         </p>
       </form>
     </div>
+    </main>
 );
 }

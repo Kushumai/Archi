@@ -35,7 +35,8 @@ export default function DashboardTemplate({ children, view, setView }: Dashboard
         onOpen={() => setSidebarOpen(true)}
         onClose={() => setSidebarOpen(false)}
       />
-      <main className="flex-1 overflow-auto bg-white dark:bg-zinc-900 p-6">
+      <main role="main" className="flex-1 overflow-auto bg-white dark:bg-zinc-900 p-6">
+        <h1 className="sr-only">Tableau de bord</h1>
         {children}
       </main>
     </div>
