@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
 import { useAuth } from "@/contexts/authContext";
+import { Alert } from "@/atoms/Alert"
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -42,9 +43,13 @@ export default function LoginPage() {
         </h2>
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-100 p-3 rounded">
-            {error}
-          </div>
+          <Alert
+            variant="error"
+            title="Erreur"
+            description={error}
+            dismissible
+            onClose={() => setError("")}
+          />
         )}
 
         <div>

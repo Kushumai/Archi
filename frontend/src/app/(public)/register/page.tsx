@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Input from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
+import { Alert} from "@/components/atoms/Alert"
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/authContext";
 import { AxiosError } from "axios";
@@ -63,9 +64,13 @@ export default function RegisterPage() {
         </h2>
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-100 p-3 rounded">
-            {error}
-          </div>
+          <Alert
+            variant="error"
+            title="Erreur"
+            description={error}
+            dismissible
+            onClose={() => setError("")}
+          />
         )}
 
         <div>

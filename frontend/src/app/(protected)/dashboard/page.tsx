@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/authContext";
 import Input from "@/components/atoms/Input";
 import { Button } from "@/components/atoms/Button";
+import { Alert} from "@/components/atoms/Alert"
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import { useDocuments } from "@/hooks/useDocuments";
 
@@ -13,7 +14,6 @@ type View = "upload" | "documents" | "profile";
 export default function DashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
-
   const [view, setView] = useState<View>("upload");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("autre");
@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const {
     docs,
     feedback,
+    setFeedback,
     fetching,
     fetchDocs,
     fileInputRef,
@@ -43,17 +44,13 @@ export default function DashboardPage() {
   return (
     <DashboardTemplate view={view} setView={setView}>
       {feedback && (
-        <div
-          className={
-            `mb-6 p-3 rounded text-sm font-medium max-w-lg w-full ` +
-            (feedback.type === "success"
-              ? "bg-green-100 text-green-700 border border-green-300"
-              : "bg-red-100 text-red-700 border border-red-300")
-          }
-          role="alert"
-        >
-          {feedback.text}
-        </div>
+        <Alert
+          variant={feedback.type}
+          title={feedback.type === "success" ? "Succès" : "Erreur"}
+          description={feedback.text}
+          dismissible
+          onClose={() => setFeedback(null)}
+        />
       )}
 
       {view === "upload" && (

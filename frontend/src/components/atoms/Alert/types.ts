@@ -9,5 +9,5 @@ export interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode
   dismissible?: boolean
   onClose?: () => void
-  id?: string // utile pour aria-describedby
+  id?: string
 }
