@@ -20,4 +20,10 @@ describe("Alert", () => {
     fireEvent.click(closeButton);
     expect(handleClose).toHaveBeenCalled();
   });
+
+   it("se render sans crash", () => {
+    render(
+      <Alert variant="success" title="Titre" description="Ceci est une alerte" />
+    );
+  });
 });

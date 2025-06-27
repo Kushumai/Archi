@@ -49,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ view, setView, user, isOpen, o
         >
           Profil
         </button>
-        {user?.email && (
+        {isOpen && user?.email && (
           <div className="mt-1 text-xs text-neutral-500 truncate">{user.email}</div>
         )}
       </div>

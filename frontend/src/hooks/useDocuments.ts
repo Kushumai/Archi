@@ -35,7 +35,7 @@ export const useDocuments = () => {
     } finally {
       setFetching(false);
     }
-  }, [docs]);
+  }, []);
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
