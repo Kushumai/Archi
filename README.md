@@ -6,7 +6,7 @@
     <li><a href="#Technologies">Technologies</a></li>
     <li><a href="#Structure-du-projet">Structure du projet</a></li>
     <li><a href="#Installation-et-démarrage">Installation et démarrage</a></li>
-    <li><a href="#CI/CD-et-tests">CI/CD et tests</a></li>
+    <!-- <li><a href="#CI/CD-et-tests">CI/CD et tests</a></li> -->
     <li><a href="#Licence">Licence</a></li>
   </ol>
 </details>
@@ -87,10 +87,10 @@ Archi/
   
 Après démarrage, ouvrez votre navigateur sur http://localhost pour accéder à l’application (via NGINX), ou http://localhost:3100 directement au front-end. Les API sont joignables derrière ce proxy (par exemple /api/auth, /api/users, /api/documents).
 
-## CI/CD et tests
+<!-- ## CI/CD et tests
 
 Le projet est conçu pour l’intégration continue : le pipeline GitHub Actions installe les dépendances, effectue le linting et la vérification de types, puis compile le front-end et les services. Il exécute ensuite les tests unitaires et d’intégration (Jest + Supertest) et enfin les tests End-to-End (Playwright dans un environnement Docker isolé). En cas de succès, les conteneurs Docker sont construits et poussés sur un registre, prêts pour le déploiement automatique (par exemple docker-compose pull && up sur un serveur de production, ou via AWS Fargate).
-
+-->
 ## Licence
 
 Ce projet est open-source (licence MIT). 
