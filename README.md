@@ -1,5 +1,5 @@
 <details>
-  <summary>Table of Contents</summary>
+  <summary>Sommaire</summary>
   <ol>
     <li><a href="#Description">Description</a></li>
     <li><a href="#Fonctionnalités-principales">Fonctionnalités principales</a></li>
