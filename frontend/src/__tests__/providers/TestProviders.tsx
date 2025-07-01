@@ -9,7 +9,7 @@ type Props = {
   };
 };
 
-export function TestProviders({ children, init }: Props) {
+export function TestProviders({ children }: Props) {
   return (
     <AuthProvider>
       {children}

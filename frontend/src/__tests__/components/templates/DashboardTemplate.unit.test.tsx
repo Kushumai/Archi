@@ -1,6 +1,5 @@
 // src/__tests__/components/organisms/Header.unit.test.tsx
 import { render, screen } from "@testing-library/react";
-import { Header } from "@/components/organisms/Header";
 
 // Mock Next.js App Router hooks
 jest.mock("next/navigation", () => ({

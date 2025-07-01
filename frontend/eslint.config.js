@@ -1,31 +1,38 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import js from "@eslint/js";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
+import { defineConfig } from "eslint/config";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: {
+export default defineConfig([
+  {
+    ignores: ['.next/**', 'node_modules/**', 'dist/**', 'build/**'],
+  },
+  {
+    files: ['src/**/*.{js,ts,jsx,tsx}'],
+    plugins: { js },
+    extends: ['js/recommended'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
   },
-});
-
-export default [
-  ...compat.extends(
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:@next/next/core-web-vitals'
-  ),
+  ...tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
   {
     rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-require-imports': 'off',
       'react/no-unescaped-entities': 'off',
     },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
   },
-];
+]);
