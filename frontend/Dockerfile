@@ -17,3 +17,6 @@ RUN npm run build || (npm run lint && false)
 EXPOSE 3100
 
 CMD ["npm", "run", "dev"]
+
+
+

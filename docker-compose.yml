@@ -15,8 +15,6 @@ services:
       - bff-service
     networks:
       - archi_net
-
-
   frontend:
     container_name: archi_frontend
     build:
@@ -30,7 +28,6 @@ services:
       - "3100:3100"
     networks:
       - archi_net
-
   bff-service:
     container_name: archi_bff
     build:
@@ -41,7 +38,6 @@ services:
       - "3000:3000"
     networks:
       - archi_net
-
   auth-service:
     container_name: archi_auth
     build:
@@ -52,7 +48,6 @@ services:
     #   - "3001:3001"
     networks:
       - archi_net
-
   user-service:
     container_name: archi_user
     build:
@@ -63,7 +58,6 @@ services:
     #   - "3002:3002"
     networks:
       - archi_net
-
   document-service:
     container_name: archi_document
     build:
@@ -88,7 +82,6 @@ services:
       - minio_data:/data
     networks:
       - archi_net
-
   auth_postgres:
     image: postgres:15
     container_name: auth_postgres
@@ -103,8 +96,6 @@ services:
       - "5433:5432"
     networks:
       - archi_net
-
-
   user_postgres:
     image: postgres:15
     container_name: user_postgres
@@ -119,7 +110,6 @@ services:
       - "5434:5432"
     networks:
       - archi_net
-
   document_postgres:
     image: postgres:15
     container_name: document_postgres
@@ -134,14 +124,11 @@ services:
       - "5435:5432"
     networks:
       - archi_net
-
 volumes:
   minio_data:
   auth_postgres_data:
   user_postgres_data:
   document_postgres_data:
-  
-
 networks:
   archi_net:
     driver: bridge
