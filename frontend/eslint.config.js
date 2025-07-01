@@ -1,5 +1,5 @@
 import next from 'next';
-import nextConfig from './next.config.js';
+import nextConfig from './next.config.ts';
 
 export default [
   ...next(nextConfig),
