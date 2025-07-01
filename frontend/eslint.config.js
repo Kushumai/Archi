@@ -1,11 +1,10 @@
-import next from 'next';
-import nextConfig from './next.config.ts';
+import next from "@eslint/next";
 
 export default [
-  ...next(nextConfig),
+  ...next(),
   {
     rules: {
-      'react/no-unescaped-entities': 'off',
+      "react/no-unescaped-entities": "off",
     },
   },
 ];
