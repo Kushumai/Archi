@@ -46,6 +46,9 @@ jobs:
           npm run build
           npm test
               
+      - name: Check files in auth-service
+        working-directory: ./auth-service
+        run: ls -l
       - name: Inject .env for auth-service
         working-directory: ./auth-service
         run: echo "${{ secrets.AUTH_ENV_FILE }}" > .env
