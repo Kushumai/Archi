@@ -60,6 +60,9 @@ jobs:
           npm run build
           npm test
 
+      - name: Check files in user-service
+        working-directory: ./user-service
+        run: ls -l
       - name: Inject .env for user-service
         working-directory: ./user-service
         run: echo "${{ secrets.USER_ENV_FILE }}" > .env
