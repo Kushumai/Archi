@@ -7,9 +7,8 @@
     "start:dev": "dotenv -e .env.local -- nest start --watch",
     "build": "nest build",
     "start": "dotenv -e .env.local -- node dist/main.js",
-    "typeorm:migration:generate": "ts-node --esm ./node_modules/typeorm/cli.js migration:generate -d src/data-source.ts",
-    "typeorm:migration:run": "ts-node --esm ./node_modules/typeorm/cli.js migration:run -d src/data-source.ts",
-    "typeorm:migration:show": "ts-node --esm ./node_modules/typeorm/cli.js migration:show -d src/data-source.ts"
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +31,7 @@
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.30.1",
     "@nestjs/cli": "^11.0.7",
     "@nestjs/schematics": "^11.0.5",
     "@types/cors": "^2.8.17",
@@ -39,8 +39,12 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.15.25",
     "dotenv-cli": "^8.0.0",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
     "nodemon": "^3.1.10",
     "prisma": "^6.8.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.1"
   }
 }
