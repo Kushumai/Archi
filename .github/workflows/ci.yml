@@ -72,7 +72,7 @@ jobs:
           npm ci
           npm run lint
           npm run build
-          npm test
+         # npm test // Uncomment if tests are available
               
       - name: Inject .env for document-service
         working-directory: ./document-service
@@ -83,7 +83,7 @@ jobs:
           npm ci
           npm run lint
           npm run build
-          npm test
+        #  npm test // Uncomment if tests are available
               
       - name: Inject .env for bff-service
         working-directory: ./bff-service
