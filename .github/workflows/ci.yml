@@ -35,6 +35,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Inject .env for frontend
+        working-directory: ./frontend
+        run: echo "${{ secrets.FRONTEND_ENV_FILE }}" > .env
       - name: Install, lint, build, test frontend
         working-directory: ./frontend
         run: |
@@ -43,6 +46,9 @@ jobs:
           npm run build
           npm test
               
+      - name: Inject .env for auth-service
+        working-directory: ./auth-service
+        run: echo "${{ secrets.AUTH_ENV_FILE }}" > .env
       - name: Install, lint, build, test auth-service
         working-directory: ./auth-service
         run: |
@@ -50,7 +56,10 @@ jobs:
           npm run lint
           npm run build
           npm test
-              
+
+      - name: Inject .env for user-service
+        working-directory: ./user-service
+        run: echo "${{ secrets.USER_ENV_FILE }}" > .env
       - name: Install, lint, build, test user-service
         working-directory: ./user-service
         run: |
@@ -59,6 +68,9 @@ jobs:
           npm run build
           npm test
               
+      - name: Inject .env for document-service
+        working-directory: ./document-service
+        run: echo "${{ secrets.DOCUMENT_ENV_FILE }}" > .env
       - name: Install, lint, build, test document-service
         working-directory: ./document-service
         run: |
@@ -67,6 +79,9 @@ jobs:
           npm run build
           npm test
               
+      - name: Inject .env for bff-service
+        working-directory: ./bff-service
+        run: echo "${{ secrets.BFF_ENV_FILE }}" > .env
       - name: Install, lint, build, test bff-service
         working-directory: ./bff-service
         run: |
