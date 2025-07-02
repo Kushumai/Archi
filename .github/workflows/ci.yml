@@ -115,17 +115,17 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/frontend:latest ./frontend
-          docker push ghcr.io/${{ github.repository }}/frontend:latest
+          docker build -t ghcr.io/kushumai/archi/frontend:latest ./frontend
+          docker push ghcr.io/kushumai/archi/frontend:latest
 
-          docker build -t ghcr.io/${{ github.repository }}/auth-service:latest ./auth-service
-          docker push ghcr.io/${{ github.repository }}/auth-service:latest
+          docker build -t ghcr.io/kushumai/archi/auth-service:latest ./auth-service
+          docker push ghcr.io/kushumai/archi/auth-service:latest
 
-          docker build -t ghcr.io/${{ github.repository }}/user-service:latest ./user-service
-          docker push ghcr.io/${{ github.repository }}/user-service:latest
+          docker build -t ghcr.io/kushumai/archi/user-service:latest ./user-service
+          docker push ghcr.io/kushumai/archi/user-service:latest
 
-          docker build -t ghcr.io/${{ github.repository }}/document-service:latest ./document-service
-          docker push ghcr.io/${{ github.repository }}/document-service:latest
+          docker build -t ghcr.io/kushumai/archi/document-service:latest ./document-service
+          docker push ghcr.io/kushumai/archi/document-service:latest
 
-          docker build -t ghcr.io/${{ github.repository }}/bff-service:latest ./bff-service
-          docker push ghcr.io/${{ github.repository }}/bff-service:latest
+          docker build -t ghcr.io/kushumai/archi/bff-service:latest ./bff-service
+          docker push ghcr.io/kushumai/archi/bff-service:latest
