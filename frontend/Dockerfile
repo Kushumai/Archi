@@ -1,22 +1,27 @@
-FROM node:20-slim
-
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
-
+FROM node:20-slim AS base
 WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
 
+FROM base AS builder
 COPY . .
+RUN npm run build
 
-# COPY .env .env
+FROM node:20-slim AS prod
+WORKDIR /app
 
+ENV NODE_ENV=production
 
-RUN npm run build || (npm run lint && false)
+COPY package*.json ./
+RUN npm install --omit=dev
+
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./next.config.js
+COPY --from=builder /app/package.json ./package.json
+
 
 EXPOSE 3100
 
-CMD ["npm", "run", "dev"]
-
-
-
+CMD ["npm", "run", "start"]

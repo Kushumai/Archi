@@ -1,3 +1,30 @@
+.env
+.env.*
+!.env.example
+
+# Node
 node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Typescript
 dist
-# .env
+coverage
+*.tsbuildinfo
+
+# Next.js
+.next
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# OS files
+.DS_Store
+Thumbs.db

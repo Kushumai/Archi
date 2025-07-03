@@ -1,15 +1,18 @@
-FROM node:24-slim
-
+FROM node:24-slim AS builder
 WORKDIR /app
-
-RUN apt-get update -y && apt-get install -y openssl
 COPY package*.json ./
 RUN npm install
-
 COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-EXPOSE 30001
-
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+FROM node:24-slim AS prod
+WORKDIR /app
+ENV NODE_ENV=production
+COPY package*.json ./
+RUN npm install --omit=dev
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+CMD ["node", "dist/main.js"]

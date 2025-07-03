@@ -11,72 +11,70 @@ services:
       - "443:443"
     depends_on:
       - frontend
+      - bff-service
       - auth-service
       - user-service
       - document-service
-      - bff-service
     networks:
       - archi_net
+
   frontend:
-    container_name: archi_frontend
     build:
       context: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      target: prod
     env_file:
-      - ./frontend/.env
-    ports:
-      - "3100:3100"
+      - ./frontend/.env.prod
+    command: npm run start
     networks:
       - archi_net
+
   bff-service:
-    container_name: archi_bff
     build:
       context: ./bff-service
+      target: prod
     env_file:
-      - ./bff-service/.env
-    ports:
-      - "3000:3000"
+      - ./bff-service/.env.prod
+    command: node dist/main.js
     networks:
       - archi_net
+
   auth-service:
-    container_name: archi_auth
     build:
       context: ./auth-service
+      target: prod
     env_file:
-      - ./auth-service/.env
-    # ports:
-    #   - "3001:3001"
+      - ./auth-service/.env.prod
+    command: node dist/main.js
     networks:
       - archi_net
+
   user-service:
-    container_name: archi_user
     build:
       context: ./user-service
+      target: prod
     env_file:
-      - ./user-service/.env
-    # ports:
-    #   - "3002:3002"
+      - ./user-service/.env.prod
+    command: node dist/main.js
     networks:
       - archi_net
+
   document-service:
-    container_name: archi_document
     build:
       context: ./document-service
+      target: prod
     env_file:
-      - ./document-service/.env
-    # ports:
-    #   - "3003:3003"
+      - ./document-service/.env.prod
+    command: node dist/main.js
     networks:
       - archi_net
+
   minio:
     image: minio/minio
     container_name: archi_minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: archiclemadmin
+      MINIO_ROOT_PASSWORD: 2/Wn9iWlO7sNaOGGH1yq0vqX+SH8CgHffHTsOsa8HeQ=
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -84,53 +82,58 @@ services:
       - minio_data:/data
     networks:
       - archi_net
+
   auth_postgres:
     image: postgres:15
     container_name: auth_postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: HPYpJ9e97asdgjH9DNlnVVFclQhyJ//CG/F374lL+G4=
       POSTGRES_DB: authdb
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5433:5432" 
     networks:
       - archi_net
+
   user_postgres:
     image: postgres:15
     container_name: user_postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: LZMAGr8jHWGqYWDJ28FjeDjmHdY7xuBebxU+4e1iGuE=
       POSTGRES_DB: userdb
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5434:5432"
+      - "5434:5432" 
     networks:
       - archi_net
+
   document_postgres:
     image: postgres:15
     container_name: document_postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: 4CcvZBf5aBkXlTjqyjm9KnZR29mDJx8BpwlqdTVuM0s=
       POSTGRES_DB: documentdb
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432"
+      - "5435:5432" 
     networks:
       - archi_net
+
 volumes:
   minio_data:
   auth_postgres_data:
   user_postgres_data:
   document_postgres_data:
+
 networks:
   archi_net:
     driver: bridge

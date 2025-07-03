@@ -17,6 +17,5 @@ async function bootstrap() {
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3002;
   await app.listen(port);
-  console.log(`User Service (Nest) running on http://localhost:${port}`);
 }
 bootstrap();
