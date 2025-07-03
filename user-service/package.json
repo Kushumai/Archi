@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "dotenv -e .env.local -- nest start --watch",
+    "dev": "nest start --watch",
+    "start": "nest start",
+    "start:prod": "node dist/main",
     "build": "nest build",
-    "start": "dotenv -e .env.local -- node dist/main.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "test": "jest --config=jest.config.json --runInBand",

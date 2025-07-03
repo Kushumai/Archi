@@ -4,7 +4,7 @@ import { DocumentsService } from './documents.service';
 import { DocumentsController } from './documents.controller';
 import { ServiceAuthGuard } from '../common/guards/service-auth.guard';
 import { MinioModule } from '../minio/minio.module';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../common/auth.module';
 
 @Module({

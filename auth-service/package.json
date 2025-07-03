@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "start": "node dist/main",
+    "dev": "nest start --watch",
+    "start": "nest start",
+    "start:prod": "node dist/main",
     "build": "nest build",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
