@@ -23,7 +23,7 @@ services:
       context: ./frontend
       target: prod
     env_file:
-      - ./frontend/.env.prod
+      - ./frontend/.env
     command: npm run start
     networks:
       - archi_net
@@ -33,7 +33,7 @@ services:
       context: ./bff-service
       target: prod
     env_file:
-      - ./bff-service/.env.prod
+      - ./bff-service/.env
     command: node dist/main.js
     networks:
       - archi_net
@@ -43,7 +43,7 @@ services:
       context: ./auth-service
       target: prod
     env_file:
-      - ./auth-service/.env.prod
+      - ./auth-service/.env
     command: node dist/main.js
     networks:
       - archi_net
@@ -53,7 +53,7 @@ services:
       context: ./user-service
       target: prod
     env_file:
-      - ./user-service/.env.prod
+      - ./user-service/.env
     command: node dist/main.js
     networks:
       - archi_net
@@ -63,7 +63,7 @@ services:
       context: ./document-service
       target: prod
     env_file:
-      - ./document-service/.env.prod
+      - ./document-service/.env
     command: node dist/main.js
     networks:
       - archi_net

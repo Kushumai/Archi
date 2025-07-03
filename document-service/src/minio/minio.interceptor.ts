@@ -5,8 +5,8 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as multer from 'multer';
-import { from, Observable } from 'rxjs';
+import multer from 'multer';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class MinioUploadInterceptor implements NestInterceptor {

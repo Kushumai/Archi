@@ -12,7 +12,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     env_file:
-      - ./frontend/.env.docker
+      - ./frontend/.env.dev
     ports:
       - "3100:3100"
     command: npm run dev
@@ -20,12 +20,12 @@ services:
   bff-service:
     build:
       context: ./bff-service
-      target: dev
+      target: builder
     volumes:
       - ./bff-service:/app
       - /app/node_modules
     env_file:
-      - ./bff-service/.env.docker
+      - ./bff-service/.env.dev
     ports:
       - "3000:3000"
     command: npm run dev
@@ -33,12 +33,12 @@ services:
   auth-service:
     build:
       context: ./auth-service
-      target: dev
+      target: builder
     volumes:
       - ./auth-service:/app
       - /app/node_modules
     env_file:
-      - ./auth-service/.env.docker
+      - ./auth-service/.env.dev
     ports:
       - "3001:3001"
     command: npm run dev
@@ -46,12 +46,12 @@ services:
   user-service:
     build:
       context: ./user-service
-      target: dev
+      target: builder
     volumes:
       - ./user-service:/app
       - /app/node_modules
     env_file:
-      - ./user-service/.env.docker
+      - ./user-service/.env.dev
     ports:
       - "3002:3002"
     command: npm run dev
@@ -59,19 +59,19 @@ services:
   document-service:
     build:
       context: ./document-service
-      target: dev
+      target: builder
     volumes:
       - ./document-service:/app
       - /app/node_modules
     env_file:
-      - ./document-service/.env.docker
+      - ./document-service/.env.dev
     ports:
       - "3003:3003"
     command: npm run dev
 
   minio:
     environment:
-      MINIO_ROOT_USER: monioadmin
+      MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
 
   auth_postgres:

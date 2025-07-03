@@ -1,5 +1,6 @@
 FROM node:24-slim AS builder
 WORKDIR /app
+RUN apt-get update && apt-get install -y openssl libssl-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
 COPY package*.json ./
 RUN npm install
 COPY . .
