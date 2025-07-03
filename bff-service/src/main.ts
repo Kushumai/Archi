@@ -13,7 +13,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   app.enableCors({
-    origin: 'http://localhost',
+    origin: 'https://monarchipi.duckdns.org',
     credentials: true,
   });
   app.use(cookieParser());
