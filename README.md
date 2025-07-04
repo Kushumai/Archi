@@ -30,7 +30,7 @@ Archi est une plateforme web complète pour la gestion de dossiers de location i
 
 - Facade unifiée (bff-service) : le Backend-for-Frontend expose une API unique au front-end, orchestre les appels aux autres microservices et centralise la logique (authentification, agrégation de données, etc.).
 
-- Pipeline CI/CD & Déploiement : tests automatisés (unitaires, intégration, end-to-end) et construction d’images Docker via GitHub Actions. Livraison continue vers un environnement cloud (par exemple AWS ECS).
+- Pipeline CI/CD & Déploiement : tests automatisés (unitaires, intégration, end-to-end) et construction d’images Docker via GitHub Actions. Livraison continue vers un raspberry.
 
 - Containerisation & Orchestration : tous les composants (back-end, front-end, bases de données, MinIO, NGINX) sont packagés en conteneurs Docker. En local on utilise Docker Compose, en production on cible un orchestrateur cloud.
 
