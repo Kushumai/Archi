@@ -1,4 +1,4 @@
-name: CI Build & Test
+name: CI Build & Test & Deploy
 
 on:
   push:
@@ -14,16 +14,38 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     services:
-      postgres:
+      auth_postgres:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_PASSWORD: ${{ secrets.AUTH_POSTGRES_PASSWORD }}
+          POSTGRES_DB: authdb
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
-          --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      user_postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.USER_POSTGRES_PASSWORD }}
+          POSTGRES_DB: userdb
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      document_postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DOCUMENT_POSTGRES_PASSWORD }}
+          POSTGRES_DB: documentdb
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
 
     steps:
       - name: Checkout code
@@ -60,7 +82,6 @@ jobs:
           else
             echo "${{ secrets.USER_ENV_FILE_DEV }}" > .env
           fi
-
       - name: Inject .env for document-service
         working-directory: ./document-service
         run: |
@@ -80,6 +101,10 @@ jobs:
           fi
 
       - name: Lint, build, test all services
+        env:
+          AUTH_POSTGRES_PASSWORD: ${{ secrets.AUTH_POSTGRES_PASSWORD }}
+          USER_POSTGRES_PASSWORD: ${{ secrets.USER_POSTGRES_PASSWORD }}
+          DOCUMENT_POSTGRES_PASSWORD: ${{ secrets.DOCUMENT_POSTGRES_PASSWORD }}
         run: |
           for service in frontend auth-service user-service document-service bff-service; do
             echo "---- $service ----"
@@ -90,6 +115,7 @@ jobs:
             npm test -- --passWithNoTests
             cd ..
           done
+
   build-push-deploy:
     if: github.ref == 'refs/heads/main'
     needs: build-and-test
