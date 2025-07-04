@@ -44,7 +44,7 @@ services:
       target: prod
     env_file:
       - ./auth-service/.env
-    command: node dist/main.js
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
     networks:
       - archi_net
 
@@ -54,7 +54,7 @@ services:
       target: prod
     env_file:
       - ./user-service/.env
-    command: node dist/main.js
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
     networks:
       - archi_net
 
@@ -64,7 +64,7 @@ services:
       target: prod
     env_file:
       - ./document-service/.env
-    command: node dist/main.js
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
     networks:
       - archi_net
 

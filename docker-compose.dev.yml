@@ -41,7 +41,7 @@ services:
       - ./auth-service/.env.dev
     ports:
       - "3001:3001"
-    command: npm run dev
+    command: sh -c "npx prisma migrate deploy && npm run dev"
 
   user-service:
     build:
@@ -54,7 +54,7 @@ services:
       - ./user-service/.env.dev
     ports:
       - "3002:3002"
-    command: npm run dev
+    command: sh -c "npx prisma migrate deploy && npm run dev"
 
   document-service:
     build:
@@ -67,7 +67,7 @@ services:
       - ./document-service/.env.dev
     ports:
       - "3003:3003"
-    command: npm run dev
+    command: sh -c "npx prisma migrate deploy && npm run dev"
 
   minio:
     environment:

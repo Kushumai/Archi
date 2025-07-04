@@ -12,10 +12,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
-  app.enableCors({
-    origin: 'https://monarchipi.duckdns.org',
-    credentials: true,
-  });
   app.use(cookieParser());
 
   app.use(bodyParser.json({ limit: '50mb' }));
