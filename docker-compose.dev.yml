@@ -1,0 +1,98 @@
+services:
+  nginx:
+    volumes:
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+  frontend:
+    build:
+      context: ./frontend
+      target: base
+    image: frontend:dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    env_file:
+      - ./frontend/.env.dev
+    ports:
+      - "3100:3100"
+    command: npm run dev
+
+  bff-service:
+    build:
+      context: ./bff-service
+      target: builder
+    image: bff-service:dev
+    volumes:
+      - ./bff-service:/app
+      - /app/node_modules
+    env_file:
+      - ./bff-service/.env.dev
+    ports:
+      - "3000:3000"
+    command: npm run dev
+
+  auth-service:
+    build:
+      context: ./auth-service
+      target: builder
+    image: auth-service:dev
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    env_file:
+      - ./auth-service/.env.dev
+    ports:
+      - "3001:3001"
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  user-service:
+    build:
+      context: ./user-service
+      target: builder
+    image: user-service:dev
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    env_file:
+      - ./user-service/.env.dev
+    ports:
+      - "3002:3002"
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  document-service:
+    build:
+      context: ./document-service
+      target: builder
+    image: document-service:dev
+    volumes:
+      - ./document-service:/app
+      - /app/node_modules
+    env_file:
+      - ./document-service/.env.dev
+    ports:
+      - "3003:3003"
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+
+  minio:
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+
+  auth_postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authdb
+
+  user_postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userdb
+
+  document_postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: documentdb

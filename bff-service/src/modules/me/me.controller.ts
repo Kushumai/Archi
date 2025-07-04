@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 
 @Controller('me')
 export class MeController {

@@ -1,0 +1,164 @@
+name: CI Build & Test & Deploy
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/kushumai/archi
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      auth_postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.AUTH_POSTGRES_PASSWORD }}
+          POSTGRES_DB: authdb
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      user_postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.USER_POSTGRES_PASSWORD }}
+          POSTGRES_DB: userdb
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+      document_postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DOCUMENT_POSTGRES_PASSWORD }}
+          POSTGRES_DB: documentdb
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Inject .env for frontend
+        working-directory: ./frontend
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.FRONTEND_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.FRONTEND_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for auth-service
+        working-directory: ./auth-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.AUTH_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.AUTH_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for user-service
+        working-directory: ./user-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.USER_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.USER_ENV_FILE_DEV }}" > .env
+          fi
+      - name: Inject .env for document-service
+        working-directory: ./document-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.DOCUMENT_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.DOCUMENT_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for bff-service
+        working-directory: ./bff-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.BFF_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.BFF_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Lint, build, test all services
+        env:
+          AUTH_POSTGRES_PASSWORD: ${{ secrets.AUTH_POSTGRES_PASSWORD }}
+          USER_POSTGRES_PASSWORD: ${{ secrets.USER_POSTGRES_PASSWORD }}
+          DOCUMENT_POSTGRES_PASSWORD: ${{ secrets.DOCUMENT_POSTGRES_PASSWORD }}
+        run: |
+          for service in frontend auth-service user-service document-service bff-service; do
+            echo "---- $service ----"
+            cd ./$service
+            npm ci
+            npm run lint || true
+            npm run build
+            npm test -- --passWithNoTests
+            cd ..
+          done
+
+  build-push-deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (multi-arch)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Docker images (main only)
+        run: |
+          docker buildx build --platform linux/arm64 -t $IMAGE_PREFIX/frontend:latest ./frontend --push
+          docker buildx build --platform linux/arm64 -t $IMAGE_PREFIX/auth-service:latest ./auth-service --push
+          docker buildx build --platform linux/arm64 -t $IMAGE_PREFIX/user-service:latest ./user-service --push
+          docker buildx build --platform linux/arm64 -t $IMAGE_PREFIX/document-service:latest ./document-service --push
+          docker buildx build --platform linux/arm64 -t $IMAGE_PREFIX/bff-service:latest ./bff-service --push
+
+      - name: Deploy to Raspberry Pi via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          port: ${{ secrets.PI_SSH_PORT }}
+          script: |
+            cd ${{ secrets.PI_PROJECT_PATH }}
+            git pull origin main
+            docker compose -f docker-compose.yml pull
+            docker compose -f docker-compose.yml up -d --build
+            docker image prune -af

@@ -11,60 +11,72 @@ services:
       - "443:443"
     depends_on:
       - frontend
-      - bff-service
       - auth-service
       - user-service
       - document-service
+      - bff-service
     networks:
       - archi_net
-
   frontend:
-    image: ghcr.io/kushumai/archi/frontend:latest 
+    container_name: archi_frontend
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     env_file:
       - ./frontend/.env
-    command: npm run start
+    ports:
+      - "3100:3100"
     networks:
       - archi_net
-
   bff-service:
-    image: ghcr.io/kushumai/archi/bff-service:latest
+    container_name: archi_bff
+    build:
+      context: ./bff-service
     env_file:
       - ./bff-service/.env
-    command: node dist/main.js
+    ports:
+      - "3000:3000"
     networks:
       - archi_net
-
   auth-service:
-    image: ghcr.io/kushumai/archi/auth-service:latest
+    container_name: archi_auth
+    build:
+      context: ./auth-service
     env_file:
       - ./auth-service/.env
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    # ports:
+    #   - "3001:3001"
     networks:
       - archi_net
-
   user-service:
-    image: ghcr.io/kushumai/archi/user-service:latest
+    container_name: archi_user
+    build:
+      context: ./user-service
     env_file:
       - ./user-service/.env
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    # ports:
+    #   - "3002:3002"
     networks:
       - archi_net
-
   document-service:
-    image: ghcr.io/kushumai/archi/document-service:latest
+    container_name: archi_document
+    build:
+      context: ./document-service
     env_file:
       - ./document-service/.env
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    # ports:
+    #   - "3003:3003"
     networks:
       - archi_net
-
   minio:
     image: minio/minio
     container_name: archi_minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -72,58 +84,53 @@ services:
       - minio_data:/data
     networks:
       - archi_net
-
   auth_postgres:
     image: postgres:15
     container_name: auth_postgres
     restart: always
     environment:
-      POSTGRES_USER: ${AUTH_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: authdb
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432" 
+      - "5433:5432"
     networks:
       - archi_net
-
   user_postgres:
     image: postgres:15
     container_name: user_postgres
     restart: always
     environment:
-      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: userdb
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5434:5432" 
+      - "5434:5432"
     networks:
       - archi_net
-
   document_postgres:
     image: postgres:15
     container_name: document_postgres
     restart: always
     environment:
-      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: documentdb
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432" 
+      - "5435:5432"
     networks:
       - archi_net
-
 volumes:
   minio_data:
   auth_postgres_data:
   user_postgres_data:
   document_postgres_data:
-
 networks:
   archi_net:
     driver: bridge

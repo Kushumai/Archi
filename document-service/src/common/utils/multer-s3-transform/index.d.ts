@@ -1,22 +1,27 @@
 declare module 'multer-s3-transform' {
     import { StorageEngine } from 'multer';
-    import { S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
-  
-    export interface MulterS3TransformOptions {
+    import type { S3Client } from '@aws-sdk/client-s3';
+    
+    interface MulterS3TransformOptions {
       s3: S3Client;
       bucket: string;
       acl?: string;
       contentType?: any;
-      key: (req: Express.Request, file: Express.Multer.File, cb: (err: Error | null, key?: string) => void) => void;
-      shouldTransform?: (req: Express.Request, file: Express.Multer.File, cb: (err: Error | null, transform?: boolean) => void) => void;
-      transforms?: any[];
+      metadata?: (req: any, file: Express.Multer.File, cb: (err: any, metadata?: Record<string, any>) => void) => void;
+      key: (req: any, file: Express.Multer.File, cb: (err: any, key?: string) => void) => void;
+      shouldTransform?: (req: any, file: Express.Multer.File, cb: (err: any, transform?: boolean) => void) => void;
+      transforms?: Array<{
+        id: string;
+        key?: (req: any, filename: string) => Promise<string>;
+        transform: (req: any, file: Express.Multer.File) => NodeJS.ReadWriteStream;
+      }>;
     }
-  
     function multerS3Transform(opts: MulterS3TransformOptions): StorageEngine;
-  
+
     namespace multerS3Transform {
       const AUTO_CONTENT_TYPE: any;
     }
+    
+    export function multerS3Transform(opts: MulterS3TransformOptions): StorageEngine & { AUTO_CONTENT_TYPE: any };
+  }
   
-    export { multerS3Transform };
-  }  

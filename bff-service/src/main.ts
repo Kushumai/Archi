@@ -2,8 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,10 +12,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
-  app.enableCors({
-    origin: 'https://monarchipi.duckdns.org',
-    credentials: true,
-  });
   app.use(cookieParser());
 
   app.use(bodyParser.json({ limit: '50mb' }));
