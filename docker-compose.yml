@@ -63,8 +63,8 @@ services:
     container_name: archi_minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: archiclemadmin
-      MINIO_ROOT_PASSWORD: 2/Wn9iWlO7sNaOGGH1yq0vqX+SH8CgHffHTsOsa8HeQ=
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -78,9 +78,9 @@ services:
     container_name: auth_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: HPYpJ9e97asdgjH9DNlnVVFclQhyJ//CG/F374lL+G4=
-      POSTGRES_DB: authdb
+      POSTGRES_USER: ${AUTH_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${AUTH_POSTGRES_DB}
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
@@ -93,9 +93,9 @@ services:
     container_name: user_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: LZMAGr8jHWGqYWDJ28FjeDjmHdY7xuBebxU+4e1iGuE=
-      POSTGRES_DB: userdb
+      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
@@ -108,9 +108,9 @@ services:
     container_name: document_postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 4CcvZBf5aBkXlTjqyjm9KnZR29mDJx8BpwlqdTVuM0s=
-      POSTGRES_DB: documentdb
+      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
