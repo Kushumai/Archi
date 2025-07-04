@@ -19,9 +19,7 @@ services:
       - archi_net
 
   frontend:
-    build:
-      context: ./frontend
-      target: prod
+    image: ghcr.io/kushumai/archi/frontend:latest 
     env_file:
       - ./frontend/.env
     command: npm run start
@@ -29,9 +27,7 @@ services:
       - archi_net
 
   bff-service:
-    build:
-      context: ./bff-service
-      target: prod
+    image: ghcr.io/kushumai/archi/bff-service:latest
     env_file:
       - ./bff-service/.env
     command: node dist/main.js
@@ -39,9 +35,7 @@ services:
       - archi_net
 
   auth-service:
-    build:
-      context: ./auth-service
-      target: prod
+    image: ghcr.io/kushumai/archi/auth-service:latest
     env_file:
       - ./auth-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
@@ -49,9 +43,7 @@ services:
       - archi_net
 
   user-service:
-    build:
-      context: ./user-service
-      target: prod
+    image: ghcr.io/kushumai/archi/user-service:latest
     env_file:
       - ./user-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
@@ -59,9 +51,7 @@ services:
       - archi_net
 
   document-service:
-    build:
-      context: ./document-service
-      target: prod
+    image: ghcr.io/kushumai/archi/document-service:latest
     env_file:
       - ./document-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
