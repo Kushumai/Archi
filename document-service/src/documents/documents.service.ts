@@ -78,14 +78,18 @@ export class DocumentsService {
     });
   }
 
-  async remove(userId: string, documentId: string) {
+  async remove(userId: string, documentId: string): Promise<void> {
     const document = await this.findOneForOwner(userId, documentId);
-
-    await this.minio.client.removeObject(
-      this.minio.getBucket(),
-      document.fileName,
-    );
-
+  
+    try {
+      await this.minio.client.removeObject(
+        this.minio.getBucket(),
+        document.fileName,
+      );
+    } catch (error) {
+      console.error(`Failed to delete file ${document.fileName} for user ${userId}:`, error);
+    }
+  
     await this.prisma.document.delete({
       where: { id: documentId },
     });
@@ -97,5 +101,18 @@ export class DocumentsService {
       take: limit,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async deleteAllUserDocuments(userId: string): Promise<void> {
+    const docs = await this.prisma.document.findMany({ where: { ownerId: userId } });
+    const bucket = this.minio.getBucket();
+    for (const doc of docs) {
+      try {
+        await this.minio.client.removeObject(bucket, doc.fileName);
+      } catch (error) {
+        console.error(`Failed to delete file ${doc.fileName} for user ${userId}:`, error);
+      }
+    }
+    await this.prisma.document.deleteMany({ where: { ownerId: userId } });
   }
 }

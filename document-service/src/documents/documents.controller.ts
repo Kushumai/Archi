@@ -155,4 +155,23 @@ export class DocumentsController {
     res.set({ 'Content-Disposition': `attachment; filename="${doc.fileName}"` });
     return stream.pipe(res);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeMyDocument(
+    @Req() req: AuthRequest,
+    @Param('id') id: string,
+  ) {
+    await this.docs.remove(req.user.sub, id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeAllMyDocuments(@Req() req: AuthRequest) {
+    await this.docs.deleteAllUserDocuments(req.user.sub);
+  }
+
+
 }

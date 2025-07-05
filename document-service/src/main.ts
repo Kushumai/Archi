@@ -26,6 +26,7 @@ async function bootstrap() {
   const port = configService.get<number>('PORT') || 3003;
 
   await app.listen(port, '0.0.0.0');
+  console.log('DATABASE_URL:', process.env.DATABASE_URL)
   console.log(`📂 Document Service running on http://localhost:${port}`);
 }
 

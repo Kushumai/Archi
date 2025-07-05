@@ -1,0 +1,19 @@
+{
+  "displayName": "document-service",
+  "preset": "ts-jest/presets/default-esm",
+  "testEnvironment": "node",
+  "transform": {
+    "^.+\\.tsx?$": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "tsconfig": "<rootDir>/tsconfig.json"
+      }
+    ]
+  },
+  "roots": ["<rootDir>/src"],
+  "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+  "collectCoverage": true,
+  "coverageDirectory": "./coverage",
+  "testMatch": ["**/src/**/test/**/*.spec.ts"]
+}
