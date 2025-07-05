@@ -11,7 +11,8 @@ env:
   IMAGE_PREFIX: ghcr.io/kushumai/archi
 
 jobs:
-  build-and-test:
+  lint-buildCode-test:
+    name: Lint, Build Code & Test (JS/TS)
     runs-on: ubuntu-latest
     services:
       auth_postgres:
@@ -115,10 +116,29 @@ jobs:
             npm test -- --passWithNoTests
             cd ..
           done
+  buildTest-docker:
+    name: Build Docker Images (Check Only)
+    needs: lint-buildCode-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images (check only)
+        run: |
+          for service in frontend auth-service user-service document-service bff-service; do
+            docker build -f ./$service/Dockerfile ./$service
+          done
+
 
   build-push-deploy:
+    name: Build, Push & Deploy (Prod)
     if: github.ref == 'refs/heads/main'
-    needs: build-and-test
+    needs: lint-buildCode-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
