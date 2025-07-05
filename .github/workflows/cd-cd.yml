@@ -11,7 +11,18 @@ env:
   IMAGE_PREFIX: ghcr.io/kushumai/archi
 
 jobs:
-  build-and-test:
+
+  block-non-dev-to-main:
+    name: "Block PRs Not From Dev to Main"
+    if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block PRs not from dev to main
+        run: |
+          echo "Only PRs from 'dev' to 'main' are allowed. This PR is from '${{ github.head_ref }}'."
+          exit 1
+  lint-buildCode-test:
+    name: Lint, Build Code & Test (JS/TS)
     runs-on: ubuntu-latest
     services:
       auth_postgres:
@@ -115,10 +126,29 @@ jobs:
             npm test -- --passWithNoTests
             cd ..
           done
+  buildTest-docker:
+    name: Build Docker Images (Check Only)
+    needs: lint-buildCode-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images (check only)
+        run: |
+          for service in frontend auth-service user-service document-service bff-service; do
+            docker build -f ./$service/Dockerfile ./$service
+          done
+
 
   build-push-deploy:
+    name: Build, Push & Deploy (Prod)
     if: github.ref == 'refs/heads/main'
-    needs: build-and-test
+    needs: lint-buildCode-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
