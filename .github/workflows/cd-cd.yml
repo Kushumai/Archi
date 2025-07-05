@@ -11,6 +11,16 @@ env:
   IMAGE_PREFIX: ghcr.io/kushumai/archi
 
 jobs:
+
+  block-non-dev-to-main:
+    name: "Block PRs Not From Dev to Main"
+    if: github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block PRs not from dev to main
+        run: |
+          echo "Only PRs from 'dev' to 'main' are allowed. This PR is from '${{ github.head_ref }}'."
+          exit 1
   lint-buildCode-test:
     name: Lint, Build Code & Test (JS/TS)
     runs-on: ubuntu-latest
