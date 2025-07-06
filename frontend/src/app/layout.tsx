@@ -1,8 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/atoms/ThemeProvider";
-import { Header } from "@/components/organisms/Header";
-import { Footer } from "@/components/organisms/Footer";
 import { AuthProvider } from "@/contexts/authContext";
 
 export const metadata: Metadata = {
@@ -16,9 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="font-sans antialiased bg-background text-foreground flex flex-col min-h-screen">
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <Header />
-              {children}
-            <Footer />
+            {children}
           </ThemeProvider>
         </AuthProvider>
       </body>

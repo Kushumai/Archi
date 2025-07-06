@@ -1,8 +1,13 @@
-"use client";
-
-import * as React from "react";
+import { Header } from "@/components/organisms/Header";
 import ProtectedRoute from "@/components/templates/ProtectedRoute";
 
-export default function PrivateGroupLayout({ children }: { children: React.ReactNode }) {
-  return <ProtectedRoute>{children}</ProtectedRoute>;
+export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Header />
+      <ProtectedRoute>
+        {children}
+      </ProtectedRoute>
+    </>
+  );
 }
