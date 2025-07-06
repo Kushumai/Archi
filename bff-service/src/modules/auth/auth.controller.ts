@@ -43,10 +43,7 @@ export class AuthController {
     if (setCookie) {
       const cookieHeader = Array.isArray(setCookie) ? setCookie : [setCookie];
       res.setHeader('Set-Cookie', cookieHeader);
-    } else {
-      console.log('⚠️ BFF → No Set-Cookie received from auth-service');
-    }
-    return data
+    } return data
   }
 
   @Post('logout')

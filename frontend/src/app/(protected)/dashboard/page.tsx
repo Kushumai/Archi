@@ -8,6 +8,7 @@ import { Button } from "@/components/atoms/Button";
 import { Alert} from "@/components/atoms/Alert"
 import DashboardTemplate from "@/components/templates/DashboardTemplate";
 import { useDocuments } from "@/hooks/useDocuments";
+import { useDeleteAccount } from "@/hooks/useDeleteAccount";
 
 type View = "upload" | "documents" | "profile";
 
@@ -29,7 +30,10 @@ export default function DashboardPage() {
     handleUpload,
     handleDownload,
     handleFileChange,
+    handleDelete,
+    handleDeleteAll,
   } = useDocuments();
+  const { handleDeleteAccount } = useDeleteAccount();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -134,6 +138,7 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
             Mes documents
           </h2>
+
           {fetching ? (
             <p className="text-neutral-700 dark:text-neutral-300">Chargement…</p>
           ) : docs.length === 0 ? (
@@ -143,16 +148,39 @@ export default function DashboardPage() {
               {docs.map((doc) => (
                 <li
                   key={doc.id}
-                  className="flex justify-between items-start p-3 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
+                  className="flex justify-between items-center p-3 bg-white dark:bg-zinc-800 border border-neutral-200 dark:border-neutral-700 rounded"
                 >
-                  <span className="truncate">{doc.title}</span>
-                  <span className="truncate">{doc.category}</span>
-                  <Button size="sm" onClick={() => handleDownload(doc)}>
-                    Télécharger
-                  </Button>
+                  <div className="flex-1 flex flex-col min-w-0">
+                    <span className="truncate font-medium">{doc.title}</span>
+                    <span className="truncate text-xs text-gray-500 dark:text-gray-400">{doc.category}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" onClick={() => handleDownload(doc)}>
+                      Télécharger
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(doc.id)}
+                    >
+                      Supprimer
+                    </Button>
+                  </div>
                 </li>
               ))}
             </ul>
+          )}
+          {docs.length >= 2 && (
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="destructive"
+                className="mb-2"
+                onClick={handleDeleteAll}
+                disabled={fetching}
+              >
+                Supprimer tous mes documents
+              </Button>
+            </div>
           )}
         </section>
       )}
@@ -165,6 +193,15 @@ export default function DashboardPage() {
           <div className="space-x-1">
             <span className="text-neutral-700 dark:text-neutral-300">Email :</span>
             <strong className="text-neutral-900 dark:text-white">{user?.email ?? "Non renseigné"}</strong>
+          </div>
+
+          <div className="flex justify-center mt-8">
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+            >
+              Supprimer mon compte et toutes mes données
+            </Button>
           </div>
         </section>
       )}

@@ -98,4 +98,16 @@ export class DocumentsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+  async deleteAllUserDocuments(userId: string): Promise<void> {
+    const docs = await this.prisma.document.findMany({ where: { ownerId: userId } });
+    const bucket = this.minio.getBucket();
+    for (const doc of docs) {
+      try {
+        await this.minio.client.removeObject(bucket, doc.fileName);
+      } catch (error) {
+        console.error(`Failed to delete file ${doc.fileName} for user ${userId}:`, error);
+      }
+    }
+    await this.prisma.document.deleteMany({ where: { ownerId: userId } });
+  }
 }

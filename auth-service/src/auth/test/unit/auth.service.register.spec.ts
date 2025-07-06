@@ -11,7 +11,7 @@ describe('AuthService.register (unit)', () => {
   let service: AuthService;
 
   const prismaMock = {
-    user: {
+    authAccount: {
       findUnique: jest.fn(),
       create: jest.fn(),
     },
@@ -25,7 +25,6 @@ describe('AuthService.register (unit)', () => {
   };
 
   beforeAll(() => {
-
     service = new AuthService(
       jwtMock,
       configMock as any,
@@ -36,23 +35,23 @@ describe('AuthService.register (unit)', () => {
   });
 
   beforeEach(() => {
-    prismaMock.user.findUnique.mockReset();
-    prismaMock.user.create.mockReset();
+    prismaMock.authAccount.findUnique.mockReset();
+    prismaMock.authAccount.create.mockReset();
     httpServiceMock.axiosRef.post.mockReset();
     (argon2.hash as jest.Mock).mockReset();
   });
 
   it('doit lever BadRequestException si l’email existe déjà', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ id: 'x', email: 'a@b.c' });
+    prismaMock.authAccount.findUnique.mockResolvedValue({ id: 'x', email: 'a@b.c' });
     await expect(
       service.register('a@b.c', 'pwd', 'First', 'Last'),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('doit créer un user et appeler user-service en cas de succès', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.authAccount.findUnique.mockResolvedValue(null);
     (argon2.hash as jest.Mock).mockResolvedValue('hashed-password');
-    prismaMock.user.create.mockResolvedValue({ id: 'new-id', email: 'a@b.c' });
+    prismaMock.authAccount.create.mockResolvedValue({ id: 'new-id', email: 'a@b.c' });
     httpServiceMock.axiosRef.post.mockResolvedValue({ status: 201 });
 
     await expect(
@@ -60,7 +59,7 @@ describe('AuthService.register (unit)', () => {
     ).resolves.toBeUndefined();
 
     expect(argon2.hash).toHaveBeenCalledWith('pwd');
-    expect(prismaMock.user.create).toHaveBeenCalledWith(
+    expect(prismaMock.authAccount.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           email: 'a@b.c',
@@ -80,9 +79,9 @@ describe('AuthService.register (unit)', () => {
   });
 
   it('doit lever InternalServerErrorException si user-service échoue', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.authAccount.findUnique.mockResolvedValue(null);
     (argon2.hash as jest.Mock).mockResolvedValue('hashed-password');
-    prismaMock.user.create.mockResolvedValue({ id: 'new-id', email: 'a@b.c' });
+    prismaMock.authAccount.create.mockResolvedValue({ id: 'new-id', email: 'a@b.c' });
     httpServiceMock.axiosRef.post.mockRejectedValue(new Error('fail'));
 
     await expect(

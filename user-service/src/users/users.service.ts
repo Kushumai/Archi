@@ -19,6 +19,10 @@ export class UsersService {
       where: { id },
     });
   }
+  
+  async findByUserId(userId: string) {
+    return this.prisma.user.findUnique({ where: { userId } });
+  }
 
   async create(data: { userId: string; firstName: string; lastName: string }) {
     const { userId, firstName, lastName } = data
@@ -51,8 +55,11 @@ export class UsersService {
   }
 
   async delete(id: string) {
-    return this.prisma.user.delete({
-      where: { id },
-    });
+    try {
+      return await this.prisma.user.delete({ where: { id } });
+    } catch (err) {
+      console.error("[USER-SERVICE] Erreur suppression user (Prisma)", err);
+      throw err;
+    }
   }
 }
