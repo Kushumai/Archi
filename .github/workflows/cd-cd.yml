@@ -153,23 +153,24 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-    
+
       - name: Set up QEMU (multi-arch)
         uses: docker/setup-qemu-action@v3
-    
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-    
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build & Push frontend
         uses: docker/build-push-action@v5
         with:
@@ -179,6 +180,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}/frontend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Build & Push auth-service
         uses: docker/build-push-action@v5
         with:
@@ -188,6 +190,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}/auth-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Build & Push user-service
         uses: docker/build-push-action@v5
         with:
@@ -197,6 +200,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}/user-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Build & Push document-service
         uses: docker/build-push-action@v5
         with:
@@ -206,6 +210,7 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}/document-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Build & Push bff-service
         uses: docker/build-push-action@v5
         with:
@@ -215,6 +220,67 @@ jobs:
           tags: ${{ env.IMAGE_PREFIX }}/bff-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Inject .env for frontend
+        working-directory: ./frontend
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.FRONTEND_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.FRONTEND_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for auth-service
+        working-directory: ./auth-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.AUTH_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.AUTH_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for user-service
+        working-directory: ./user-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.USER_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.USER_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for document-service
+        working-directory: ./document-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.DOCUMENT_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.DOCUMENT_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Inject .env for bff-service
+        working-directory: ./bff-service
+        run: |
+          if [ "${GITHUB_REF##*/}" = "main" ]; then
+            echo "${{ secrets.BFF_ENV_FILE }}" > .env
+          else
+            echo "${{ secrets.BFF_ENV_FILE_DEV }}" > .env
+          fi
+
+      - name: Copy .env files to Pi
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          port: ${{ secrets.PI_SSH_PORT }}
+          source: |
+            ./frontend/.env
+            ./auth-service/.env
+            ./user-service/.env
+            ./document-service/.env
+            ./bff-service/.env
+          target: ${{ secrets.PI_PROJECT_PATH }}
+
       - name: Deploy to Raspberry Pi via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -228,4 +294,3 @@ jobs:
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d --build
             docker image prune -af
-        
