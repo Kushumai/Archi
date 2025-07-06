@@ -118,6 +118,45 @@ export const useDocuments = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Supprimer ce document définitivement ?")) return;
+    setFetching(true);
+    setFeedback(null);
+    try {
+      await api.delete(`/me/documents/${id}`);
+      setFeedback({ type: "success", text: "Document supprimé avec succès." });
+      await fetchDocs();
+    } catch (err) {
+      let msg = "Erreur lors de la suppression.";
+      if (isAxiosError(err)) {
+        if (err.response?.status === 404) msg = "Document introuvable.";
+        if (err.response?.status === 403) msg = "Non autorisé.";
+      }
+      setFeedback({ type: "error", text: msg });
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm("Supprimer TOUS les documents définitivement ?")) return;
+    setFetching(true);
+    setFeedback(null);
+    try {
+      await api.delete("/me/documents");
+      setFeedback({ type: "success", text: "Tous les documents ont été supprimés." });
+      await fetchDocs();
+    } catch (err) {
+      let msg = "Erreur lors de la suppression.";
+      if (isAxiosError(err)) {
+        if (err.response?.status === 403) msg = "Non autorisé.";
+      }
+      setFeedback({ type: "error", text: msg });
+    } finally {
+      setFetching(false);
+    }
+  };
+
   return {
     docs,
     fetching,
@@ -127,6 +166,8 @@ export const useDocuments = () => {
     handleFileChange,
     handleUpload,
     handleDownload,
+    handleDelete,
     fileInputRef,
+    handleDeleteAll,
   };
 };

@@ -81,6 +81,7 @@ web_modules/
 .env.staging
 .env.docker
 .env.dev
+.env.test
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

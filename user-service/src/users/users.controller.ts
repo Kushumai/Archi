@@ -8,6 +8,13 @@ import { ServiceAuthGuard } from '../common/guards/service-auth.guard'
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get('me')
+  async getMe(@Req() req: any) {
+    const userId = req.user?.sub
+    if (!userId) throw new UnauthorizedException('User ID not found in token')
+    return this.usersService.findById(userId)
+  }
+
   @Get()
   async findAll() {
     return this.usersService.findAll()
@@ -16,13 +23,6 @@ export class UsersController {
   @Get(':id')
   async findById(@Param('id') id: string) {
     return this.usersService.findById(id)
-  }
-
-  @Get('me')
-  async getMe(@Req() req: any) {
-    const userId = req.user?.sub
-    if (!userId) throw new UnauthorizedException('User ID not found in token')
-    return this.usersService.findById(userId)
   }
 
   @Post()

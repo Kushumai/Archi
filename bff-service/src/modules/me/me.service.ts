@@ -131,4 +131,86 @@ export class MeService {
       },
     );
   }
+  async deleteMyDocument(authHeader: string, docId: string): Promise<void> {
+    if (!authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Invalid Authorization header');
+    }
+    try {
+      const obs$ = this.http.delete(
+        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me/${docId}`,
+        { headers: { Authorization: authHeader } }
+      );
+      await firstValueFrom(obs$);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        throw new HttpException(
+          (err.response?.data as any)?.message || 'Erreur deleteMyDocument',
+          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+      throw new HttpException('Erreur réseau deleteMyDocument', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async deleteAllMyDocuments(authHeader: string): Promise<void> {
+    if (!authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Invalid Authorization header');
+    }
+    try {
+      const obs$ = this.http.delete(
+        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me`,
+        { headers: { Authorization: authHeader } }
+      );
+      await firstValueFrom(obs$);
+    } catch (err) {
+      console.log('Appel document-service avec Authorization :', authHeader);
+      if (err instanceof AxiosError) {
+        throw new HttpException(
+          (err.response?.data as any)?.message || 'Erreur deleteAllMyDocuments',
+          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+      throw new HttpException('Erreur réseau deleteAllMyDocuments', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async deleteMyAccount(authHeader: string): Promise<void> {
+    if (!authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Invalid Authorization header');
+    }
+
+    await this.deleteAllMyDocuments(authHeader);
+
+    try {
+      const obs$ = this.http.delete(
+        `${USER_SERVICE_URL}/api/v1/users/me`,
+        { headers: { Authorization: authHeader } }
+      );
+      await firstValueFrom(obs$);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        throw new HttpException(
+          (err.response?.data as any)?.message || 'Erreur deleteUserProfile',
+          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+      throw new HttpException('Erreur réseau deleteUserProfile', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    try {
+      const obs$ = this.http.delete(
+        `${AUTH_SERVICE_URL}/api/v1/auth/me`,
+        { headers: { Authorization: authHeader } }
+      );
+      await firstValueFrom(obs$);
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        throw new HttpException(
+          (err.response?.data as any)?.message || 'Erreur deleteAuthAccount',
+          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+      throw new HttpException('Erreur réseau deleteAuthAccount', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }
