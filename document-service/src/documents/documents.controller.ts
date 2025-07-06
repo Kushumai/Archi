@@ -33,6 +33,71 @@ export class DocumentsController {
   ) {}
 
   // -------------------
+  // User-specific (JWT user-token)
+  // -------------------
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async findMyDocuments(
+    @Req() req: AuthRequest,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    const parsedOffset = offset ? parseInt(offset, 10) : 0;
+    return this.docs.findAllByOwner(req.user.sub, parsedLimit, parsedOffset);
+  }
+
+  @Post('me')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(MinioUploadInterceptor)
+  async uploadMyDocuments(
+    @Req() req: AuthRequest,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { title: string; description?: string; category: string }
+  ) {
+    
+    const { title, description, category } = body;
+      if (!title || !category || !file) {
+    throw new BadRequestException('Titre, catégorie et fichier obligatoires.');
+  }
+    return this.docs.create(req.user.sub, { title, description, category }, file);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeAllMyDocuments(@Req() req: AuthRequest) {
+    await this.docs.deleteAllUserDocuments(req.user.sub);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/:id/file')
+  async downloadMyDocument(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Req() req: AuthRequest,
+  ) {
+    const doc = await this.docs.findOneForOwner(req.user.sub, id);
+    if (!doc) throw new NotFoundException('Document not found');
+    const bucket = this.minio.getBucket();
+    const stream = await this.minio.client.getObject(bucket, doc.fileName);
+    res.set({ 'Content-Disposition': `attachment; filename="${doc.fileName}"` });
+    return stream.pipe(res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeMyDocument(
+    @Req() req: AuthRequest,
+    @Param('id') id: string,
+  ) {
+    await this.docs.remove(req.user.sub, id);
+  }
+
+
+  // -------------------
   // Admin / service-to-service (service-token)
   // -------------------
 
@@ -107,52 +172,5 @@ export class DocumentsController {
     } catch {
     }
     await this.docs.remove(req.user.sub, id);
-  }
-
-  // -------------------
-  // User-specific (JWT user-token)
-  // -------------------
-
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async findMyDocuments(
-    @Req() req: AuthRequest,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-  ) {
-    const parsedLimit = limit ? parseInt(limit, 10) : 10;
-    const parsedOffset = offset ? parseInt(offset, 10) : 0;
-    return this.docs.findAllByOwner(req.user.sub, parsedLimit, parsedOffset);
-  }
-
-  @Post('me')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(MinioUploadInterceptor)
-  async uploadMyDocuments(
-    @Req() req: AuthRequest,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: { title: string; description?: string; category: string }
-  ) {
-    
-    const { title, description, category } = body;
-      if (!title || !category || !file) {
-    throw new BadRequestException('Titre, catégorie et fichier obligatoires.');
-  }
-    return this.docs.create(req.user.sub, { title, description, category }, file);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('me/:id/file')
-  async downloadMyDocument(
-    @Param('id') id: string,
-    @Res() res: Response,
-    @Req() req: AuthRequest,
-  ) {
-    const doc = await this.docs.findOneForOwner(req.user.sub, id);
-    if (!doc) throw new NotFoundException('Document not found');
-    const bucket = this.minio.getBucket();
-    const stream = await this.minio.client.getObject(bucket, doc.fileName);
-    res.set({ 'Content-Disposition': `attachment; filename="${doc.fileName}"` });
-    return stream.pipe(res);
   }
 }

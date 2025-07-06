@@ -12,6 +12,9 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { MeService } from './me.service';
@@ -20,6 +23,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
 import FormData from 'form-data';
+import { AuthRequest } from "../../common/types/auth-request";
 
 @Controller('me')
 export class MeController {
@@ -45,6 +49,18 @@ export class MeController {
     const token = auth.replace('Bearer ', '');
     const data = await this.meService.getMe(token);
     return res.json(data);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMyAccount(@Req() req: Request, @Res() res: Response) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid Authorization header');
+    }
+    await this.meService.deleteMyAccount(auth);
+    return res.status(HttpStatus.NO_CONTENT).send();
   }
 
   @UseGuards(JwtAuthGuard)
@@ -80,7 +96,7 @@ export class MeController {
     return upstream.data.pipe(res);
   }
 
-@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('documents')
   @UseInterceptors(FileInterceptor('file'))
   async uploadMyDocuments(
@@ -120,5 +136,33 @@ export class MeController {
     );
 
     return response.data;
+  }
+  
+  @UseGuards(JwtAuthGuard)
+  @Delete('documents/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMyDocument(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Param('id') id: string,
+  ) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid Authorization header');
+    }
+    await this.meService.deleteMyDocument(auth, id);
+    return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('documents')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAllMyDocuments(@Req() req: AuthRequest, @Res() res: Response) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid Authorization header');
+    }
+    await this.meService.deleteAllMyDocuments(auth);
+    return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

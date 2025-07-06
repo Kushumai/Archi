@@ -16,7 +16,7 @@ describe('AuthService (unit)', () => {
   };
 
   const prismaMock = {
-    user: { findUnique: jest.fn() },
+    authAccount: { findUnique: jest.fn() },
   };
 
   const jwtServiceMock = { sign: jest.fn() };
@@ -33,13 +33,13 @@ describe('AuthService (unit)', () => {
   });
 
   beforeEach(() => {
-    prismaMock.user.findUnique.mockReset();
+    prismaMock.authAccount.findUnique.mockReset();
     (argon2.verify as jest.Mock).mockReset();
     jwtServiceMock.sign.mockReset();
   });
 
   it('devrait renvoyer accessToken et refreshToken quand les identifiants sont valides', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(mockUser);
+    prismaMock.authAccount.findUnique.mockResolvedValue(mockUser);
     (argon2.verify as jest.Mock).mockResolvedValue(true);
     jwtServiceMock.sign
       .mockReturnValueOnce('access-token')
@@ -47,7 +47,7 @@ describe('AuthService (unit)', () => {
 
     const result = await service.login(mockUser.email, 'plain-password');
 
-    expect(prismaMock.user.findUnique).toHaveBeenCalledWith({ where: { email: mockUser.email } });
+    expect(prismaMock.authAccount.findUnique).toHaveBeenCalledWith({ where: { email: mockUser.email } });
     expect(argon2.verify).toHaveBeenCalledWith(mockUser.passwordHash, 'plain-password');
     expect(jwtServiceMock.sign).toHaveBeenNthCalledWith(
       1,
@@ -63,13 +63,13 @@ describe('AuthService (unit)', () => {
   });
 
   it('devrait lever UnauthorizedException si l’email est inconnu', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+    prismaMock.authAccount.findUnique.mockResolvedValue(null);
     await expect(service.login('nope@example.com', 'pwd'))
       .rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('devrait lever UnauthorizedException si le mot de passe est incorrect', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(mockUser);
+    prismaMock.authAccount.findUnique.mockResolvedValue(mockUser);
     (argon2.verify as jest.Mock).mockResolvedValue(false);
     await expect(service.login(mockUser.email, 'bad-password'))
       .rejects.toBeInstanceOf(UnauthorizedException);

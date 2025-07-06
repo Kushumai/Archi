@@ -28,7 +28,8 @@ export class AuthService {
     firstName: string,
     lastName: string,
   ): Promise<void> {
-    const existing = await this.prisma.user.findUnique({ where: { email } })
+      console.log("[AUTH] register called with", email, firstName, lastName);
+    const existing = await this.prisma.authAccount.findUnique({ where: { email } })
     if (existing) {
       throw new BadRequestException('Email déjà utilisé')
     }
@@ -36,7 +37,7 @@ export class AuthService {
     const userId = uuidv4()
     const passwordHash = await argon2.hash(password)
 
-    await this.prisma.user.create({
+    await this.prisma.authAccount.create({
       data: {
         id: userId,
         email,
@@ -47,6 +48,7 @@ export class AuthService {
     const userServiceUrl = this.config.getOrThrow('USER_SERVICE_URL')
 
     try {
+      console.log("[AUTH] Avant POST user-service avec userId =", userId);
       await this.httpService.axiosRef.post(
         `${userServiceUrl}/api/v1/users`,
         {
@@ -62,6 +64,7 @@ export class AuthService {
         },
       )
     } catch (error) {
+        console.error("[AUTH] Erreur POST user-service:", error);
       const axiosError = error as AxiosError
       console.error('Erreur user-service :', axiosError.response?.data || axiosError.message)
       throw new InternalServerErrorException('Erreur côté user-service')
@@ -69,7 +72,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await this.prisma.user.findUnique({ where: { email } })
+    const user = await this.prisma.authAccount.findUnique({ where: { email } })
 
     if (!user || !(await argon2.verify(user.passwordHash, password))) {
       throw new UnauthorizedException('Identifiants invalides')
@@ -100,4 +103,9 @@ export class AuthService {
       expiresIn: '10m',
     },
   )}
+
+  async deleteUserAccount(id: string): Promise<void> {
+  await this.prisma.authAccount.delete({ where: { id } });
+  }
+
 }

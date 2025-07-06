@@ -55,24 +55,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setLoading(true);
+const login = async (email: string, password: string) => {
+  setLoading(true);
+  try {
+    const res = await api.post<{ accessToken: string }>("/auth/login", { email, password });
+    const token = res.data.accessToken;
+
+    localStorage.setItem("accessToken", token);
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    let me;
     try {
-      const res = await api.post<{ accessToken: string }>(
-        "/auth/login",
-        { email, password }
-      );
-      const token = res.data.accessToken;
-
-      localStorage.setItem("accessToken", token);
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      const me = await api.get<User>("/me");
-      setUser(me.data);
-    } finally {
-      setLoading(false);
+      me = await api.get<User>("/me");
+    } catch (err) {
+      console.log("Erreur lors de la récupération du profil :", err);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      try {
+        me = await api.get<User>("/me");
+      } catch (err) {
+        console.log("Erreur lors de la récupération du profil après attente :", err);
+        setUser(null);
+        setLoading(false);
+        alert("Votre profil n'est pas encore prêt. Merci de patienter quelques secondes et réessayez.");
+        return;
+      }
     }
-  };
+
+    setUser(me.data);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const logout = () => {
     localStorage.removeItem("accessToken");
