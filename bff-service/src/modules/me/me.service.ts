@@ -28,44 +28,45 @@ export class MeService {
     private readonly config: ConfigService,
   ) {}
 
-  async getMe(token: string) {
-    const decoded = this.jwtService.decode(token) as { sub?: string };
-    if (!decoded?.sub) {
-      throw new UnauthorizedException('Invalid token');
-    }
-
-    try {
-      const auth$ = this.http.get<{ id: string; email: string }>(
-        `${AUTH_SERVICE_URL}/api/v1/auth/me`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      const profile$ = this.http.get(
-        `${USER_SERVICE_URL}/api/v1/users/me`,
-        { headers: { Authorization: `Bearer ${this.generateServiceToken()}` } }
-      );
-      const [authRes, profileRes]: [
-        AxiosResponse<{ id: string; email: string }>,
-        AxiosResponse<any>
-      ] = await Promise.all([
-        firstValueFrom(auth$),
-        firstValueFrom(profile$),
-      ]);
-
-      return {
-        id: authRes.data.id,
-        email: authRes.data.email,
-        profile: profileRes.data,
-      };
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        throw new HttpException(
-          (err.response?.data as any)?.message || 'Erreur getMe',
-          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-        );
-      }
-      throw new HttpException('Erreur réseau getMe', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+async getMe(token: string) {
+  const decoded = this.jwtService.decode(token) as { sub?: string };
+  if (!decoded?.sub) {
+    throw new UnauthorizedException('Invalid token');
   }
+
+  try {
+    const auth$ = this.http.get<{ id: string; email: string }>(
+      `${AUTH_SERVICE_URL}/api/v1/auth/me`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const userId = decoded.sub;
+    const profile$ = this.http.get(
+      `${USER_SERVICE_URL}/api/v1/users/${userId}`,
+      { headers: { Authorization: `Bearer ${this.generateServiceToken()}` } }
+    );
+    const [authRes, profileRes]: [
+      AxiosResponse<{ id: string; email: string }>,
+      AxiosResponse<any>
+    ] = await Promise.all([
+      firstValueFrom(auth$),
+      firstValueFrom(profile$),
+    ]);
+
+    return {
+      id: authRes.data.id,
+      email: authRes.data.email,
+      profile: profileRes.data,
+    };
+  } catch (err) {
+    if (err instanceof AxiosError) {
+      throw new HttpException(
+        (err.response?.data as any)?.message || 'Erreur getMe',
+        err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+    throw new HttpException('Erreur réseau getMe', HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+}
 
   async getMyDocuments(authHeader: string): Promise<Document[]> {
     if (!authHeader.startsWith('Bearer ')) {
