@@ -5,19 +5,19 @@ export function Footer() {
     <footer className="w-full px-4 md:px-8 lg:px-16 py-6 bg-zinc-950 text-white text-sm">
       <div className="flex flex-wrap items-center justify-between gap-y-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <a href="#" className="hover:underline">
+          <a href="/about" className="hover:underline">
             À propos
           </a>
-          <a href="#" className="hover:underline">
+          <a href="/contact" className="hover:underline">
             Contact
           </a>
-          <a href="#" className="hover:underline">
+          <a href="/legal" className="hover:underline">
             Mentions légales
           </a>
-          <a href="#" className="hover:underline">
+          <a href="/privacy" className="hover:underline">
             Politique de confidentialité
           </a>
-          <a href="#" className="hover:underline">
+          <a href="/cookies" className="hover:underline">
             Politique de cookies
           </a>
         </div>
