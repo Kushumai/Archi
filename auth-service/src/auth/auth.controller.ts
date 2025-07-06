@@ -6,20 +6,32 @@ import {
   Req,
   Get,
   UseGuards,
+  Delete,
+  Param,
+  Request as NestRequest,
 } from '@nestjs/common'
-import { Response, Request } from 'express'
+import { Response, Request as ExpressRequest } from 'express'
 import { AuthService } from './auth.service'
-import { AuthRequest } from '../common/types/auth-request.type'
+import { ServiceAuthGuard } from './guards/service-auth.guard'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 import { LoginDto } from './dto/login.dto'
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('me')
+  async deleteOwnAccount(@NestRequest() req: ExpressRequest) {
+    console.log('DELETE /me headers:', req.headers)
+    console.log('DELETE /me req.user:', (req as any).user)
+    await this.authService.deleteUserAccount((req as any).user.sub)
+    return { message: 'Compte supprimé' }
+  }
 
   @Post('/register')
   async register(
-    @Body() body: { email: string; password: string;  firstName: string; lastName: string },
+    @Body() body: { email: string; password: string; firstName: string; lastName: string },
   ) {
     const { email, password, firstName, lastName } = body
     await this.authService.register(email, password, firstName, lastName)
@@ -27,52 +39,44 @@ export class AuthController {
   }
 
   @Post('/login')
-    async login(
-      @Body() loginDto: LoginDto,
-      @Res({ passthrough: true }) res: Response,
-    ) {
-      const { accessToken, refreshToken } = await this.authService.login(
-        loginDto.email,
-        loginDto.password,
-      );
-      console.log('[auth/login] Set-Cookie for refreshToken:', refreshToken);
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        path: '/',
-        sameSite: 'lax',
-        secure: false,
-        maxAge: this.parseMaxAge(),
-      });
-    
-      return { accessToken };
-    }
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, refreshToken } = await this.authService.login(
+      loginDto.email,
+      loginDto.password,
+    )
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      path: '/',
+      sameSite: 'lax',
+      secure: false,
+      maxAge: this.parseMaxAge(),
+    })
+    return { accessToken }
+  }
+
   @Post('/refresh')
-  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    const refreshToken = req.cookies?.refreshToken;
-  
+  async refresh(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refreshToken
     if (!refreshToken) {
-      console.log('❌ AUTH → No refresh token found');
-      return res.status(401).json({ message: 'No refresh token' });
+      return res.status(401).json({ message: 'No refresh token' })
     }
-  
     try {
-      const payload = await this.authService.jwt.verifyAsync(refreshToken);
-      console.log('✅ AUTH → Refresh token valid for user:', payload.sub);
-      const accessToken = this.authService.signToken(payload.sub, this.authService.config.get('ACCESS_TOKEN_TTL'));
-      const newRefreshToken = this.authService.signToken(payload.sub, this.authService.config.get('REFRESH_TOKEN_TTL'));
-    
+      const payload = await this.authService.jwt.verifyAsync(refreshToken)
+      const accessToken = this.authService.signToken(payload.sub, this.authService.config.get('ACCESS_TOKEN_TTL'))
+      const newRefreshToken = this.authService.signToken(payload.sub, this.authService.config.get('REFRESH_TOKEN_TTL'))
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         path: '/',
         sameSite: 'lax',
         secure: false,
         maxAge: this.parseMaxAge(),
-      });
-    
-      return { accessToken };
+      })
+      return { accessToken }
     } catch (err) {
-      console.log('❌ AUTH → Invalid refresh token:', (err as Error)?.message);
-      return res.status(401).json({ message: 'Invalid refresh token' });
+      return res.status(401).json({ message: 'Invalid refresh token' })
     }
   }
 
@@ -81,20 +85,14 @@ export class AuthController {
     res.clearCookie('refreshToken', {
       path: '/',
     })
-
     return { message: 'Déconnecté' }
-  }
-
-  private parseMaxAge(): number {
-    const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
-    return (ttl || 7 * 24 * 3600) * 1000
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  getMe(@Req() req: AuthRequest) {
-  const { sub, email, role } = req.user
-  console.log('ROUTE OK')
+  getMe(@NestRequest() req: ExpressRequest) {
+    const user = (req as any).user
+    const { sub, email, role } = user
     return {
       id: sub,
       email: email ?? null,
@@ -104,6 +102,18 @@ export class AuthController {
 
   @Get('service-token')
   getServiceToken() {
-  return this.authService.generateServiceToken()
+    return this.authService.generateServiceToken()
+  }
+
+  @UseGuards(ServiceAuthGuard)
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    await this.authService.deleteUserAccount(id)
+    return { message: 'Compte supprimé' }
+  }
+
+  private parseMaxAge(): number {
+    const ttl = this.authService.config.get<number>('REFRESH_TOKEN_TTL')
+    return (ttl || 7 * 24 * 3600) * 1000
   }
 }

@@ -52,6 +52,18 @@ export class MeController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteMyAccount(@Req() req: Request, @Res() res: Response) {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or invalid Authorization header');
+    }
+    await this.meService.deleteMyAccount(auth);
+    return res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('documents')
   @Header('Cache-Control', 'no-store')
   async getMyDocuments(@Req() req: Request, @Res() res: Response) {
@@ -146,25 +158,11 @@ export class MeController {
   @Delete('documents')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAllMyDocuments(@Req() req: AuthRequest, @Res() res: Response) {
-    console.log("headers", req.headers);
-    console.log("user", req.user);
     const auth = req.headers.authorization;
     if (!auth?.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing or invalid Authorization header');
     }
     await this.meService.deleteAllMyDocuments(auth);
-    return res.status(HttpStatus.NO_CONTENT).send();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete()
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteMyAccount(@Req() req: Request, @Res() res: Response) {
-    const auth = req.headers.authorization;
-    if (!auth?.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Missing or invalid Authorization header');
-    }
-    await this.meService.deleteMyAccount(auth);
     return res.status(HttpStatus.NO_CONTENT).send();
   }
 }

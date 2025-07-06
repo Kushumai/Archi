@@ -11,10 +11,6 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosError, AxiosResponse } from 'axios';
 import { Request } from 'express';
 
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth-service:3001';
-const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://user-service:3002';
-const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL!;
-
 interface Document {
   id: string;
   name: string;
@@ -28,54 +24,57 @@ export class MeService {
     private readonly config: ConfigService,
   ) {}
 
-async getMe(token: string) {
-  const decoded = this.jwtService.decode(token) as { sub?: string };
-  if (!decoded?.sub) {
-    throw new UnauthorizedException('Invalid token');
-  }
-
-  try {
-    const auth$ = this.http.get<{ id: string; email: string }>(
-      `${AUTH_SERVICE_URL}/api/v1/auth/me`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    const userId = decoded.sub;
-    const profile$ = this.http.get(
-      `${USER_SERVICE_URL}/api/v1/users/${userId}`,
-      { headers: { Authorization: `Bearer ${this.generateServiceToken()}` } }
-    );
-    const [authRes, profileRes]: [
-      AxiosResponse<{ id: string; email: string }>,
-      AxiosResponse<any>
-    ] = await Promise.all([
-      firstValueFrom(auth$),
-      firstValueFrom(profile$),
-    ]);
-
-    return {
-      id: authRes.data.id,
-      email: authRes.data.email,
-      profile: profileRes.data,
-    };
-  } catch (err) {
-    if (err instanceof AxiosError) {
-      throw new HttpException(
-        (err.response?.data as any)?.message || 'Erreur getMe',
-        err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-      );
+  async getMe(token: string) {
+    const decoded = this.jwtService.decode(token) as { sub?: string };
+    if (!decoded?.sub) {
+      throw new UnauthorizedException('Invalid token');
     }
-    throw new HttpException('Erreur réseau getMe', HttpStatus.INTERNAL_SERVER_ERROR);
+
+    const authServiceUrl = this.config.getOrThrow<string>('AUTH_SERVICE_URL');
+    const userServiceUrl = this.config.getOrThrow<string>('USER_SERVICE_URL');
+
+    try {
+      const auth$ = this.http.get<{ id: string; email: string }>(
+        `${authServiceUrl}/api/v1/auth/me`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const userId = decoded.sub;
+      const profile$ = this.http.get(
+        `${userServiceUrl}/api/v1/users/by-user-id/${userId}`,
+        { headers: { Authorization: `Bearer ${this.generateServiceToken()}` } }
+      );
+      const [authRes, profileRes]: [
+        AxiosResponse<{ id: string; email: string }>,
+        AxiosResponse<any>
+      ] = await Promise.all([
+        firstValueFrom(auth$),
+        firstValueFrom(profile$),
+      ]);
+
+      return {
+        id: authRes.data.id,
+        email: authRes.data.email,
+        profile: profileRes.data,
+      };
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        throw new HttpException(
+          (err.response?.data as any)?.message || 'Erreur getMe',
+          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+      throw new HttpException('Erreur réseau getMe', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
-}
 
   async getMyDocuments(authHeader: string): Promise<Document[]> {
     if (!authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Invalid Authorization header');
     }
-
+    const documentServiceUrl = this.config.getOrThrow<string>('DOCUMENT_SERVICE_URL');
     try {
       const obs$ = this.http.get<Document[]>(
-        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me`,
+        `${documentServiceUrl}/api/v1/documents/me`,
         { headers: { Authorization: authHeader } }
       );
       const axiosRes: AxiosResponse<Document[]> = await firstValueFrom(obs$);
@@ -95,10 +94,10 @@ async getMe(token: string) {
     if (!authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Invalid Authorization header');
     }
-
+    const documentServiceUrl = this.config.getOrThrow<string>('DOCUMENT_SERVICE_URL');
     try {
       const obs$ = this.http.post(
-        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me`,
+        `${documentServiceUrl}/api/v1/documents/me`,
         req,
         {
           headers: {
@@ -132,13 +131,15 @@ async getMe(token: string) {
       },
     );
   }
+
   async deleteMyDocument(authHeader: string, docId: string): Promise<void> {
     if (!authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Invalid Authorization header');
     }
+    const documentServiceUrl = this.config.getOrThrow<string>('DOCUMENT_SERVICE_URL');
     try {
       const obs$ = this.http.delete(
-        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me/${docId}`,
+        `${documentServiceUrl}/api/v1/documents/me/${docId}`,
         { headers: { Authorization: authHeader } }
       );
       await firstValueFrom(obs$);
@@ -153,25 +154,25 @@ async getMe(token: string) {
     }
   }
 
+
   async deleteAllMyDocuments(authHeader: string): Promise<void> {
     if (!authHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Invalid Authorization header');
     }
+    const documentServiceUrl = this.config.getOrThrow<string>('DOCUMENT_SERVICE_URL');
     try {
       const obs$ = this.http.delete(
-        `${DOCUMENT_SERVICE_URL}/api/v1/documents/me`,
+        `${documentServiceUrl}/api/v1/documents/me`,
         { headers: { Authorization: authHeader } }
       );
       await firstValueFrom(obs$);
     } catch (err) {
-      console.log('Appel document-service avec Authorization :', authHeader);
-      if (err instanceof AxiosError) {
-        throw new HttpException(
-          (err.response?.data as any)?.message || 'Erreur deleteAllMyDocuments',
-          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-        );
-      }
-      throw new HttpException('Erreur réseau deleteAllMyDocuments', HttpStatus.INTERNAL_SERVER_ERROR);
+      const axiosErr = err as AxiosError;
+      console.error('Erreur deleteAllMyDocuments:', axiosErr?.response?.data || err);
+      throw new HttpException(
+        (axiosErr.response?.data as any)?.message || 'Erreur deleteAllMyDocuments',
+        axiosErr.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -180,38 +181,72 @@ async getMe(token: string) {
       throw new UnauthorizedException('Invalid Authorization header');
     }
 
+    // 1. Suppression des documents utilisateur
+    console.log("[BFF] Suppression de tous les documents utilisateur...");
     await this.deleteAllMyDocuments(authHeader);
 
+    // 2. Récupération du userId depuis le JWT
+    const token = authHeader.replace('Bearer ', '');
+    const decoded = this.jwtService.decode(token) as { sub?: string };
+    if (!decoded?.sub) {
+      console.log("[BFF] Invalid token: missing sub");
+      throw new UnauthorizedException('Invalid token: missing sub');
+    }
+    const userId = decoded.sub;
+
+    // 3. Récupération du profil via user-service
+    const userServiceUrl = this.config.getOrThrow<string>('USER_SERVICE_URL');
+    const serviceToken = this.generateServiceToken();
+    let userProfile;
     try {
-      const obs$ = this.http.delete(
-        `${USER_SERVICE_URL}/api/v1/users/me`,
-        { headers: { Authorization: authHeader } }
+      console.log("[BFF] Recherche du profil user-service via userId =", userId);
+      const userRes = await firstValueFrom(
+        this.http.get(`${userServiceUrl}/api/v1/users/by-user-id/${userId}`, {
+          headers: { Authorization: `Bearer ${serviceToken}` },
+        })
       );
-      await firstValueFrom(obs$);
+      userProfile = userRes.data;
+      console.log("[BFF] Profil utilisateur trouvé :", userProfile);
     } catch (err) {
-      if (err instanceof AxiosError) {
-        throw new HttpException(
-          (err.response?.data as any)?.message || 'Erreur deleteUserProfile',
-          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-        );
-      }
-      throw new HttpException('Erreur réseau deleteUserProfile', HttpStatus.INTERNAL_SERVER_ERROR);
+      const axiosErr = err as AxiosError;
+      console.error("[BFF] Erreur lors de la récupération du profil utilisateur", axiosErr?.response?.data || err);
+      throw new HttpException('Erreur lors de la récupération du profil utilisateur', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    if (!userProfile || !userProfile.id) {
+      console.log("[BFF] Profil utilisateur introuvable");
+      throw new HttpException('Profil utilisateur introuvable', HttpStatus.NOT_FOUND);
     }
 
+    // 4. Suppression du profil user-service
     try {
-      const obs$ = this.http.delete(
-        `${AUTH_SERVICE_URL}/api/v1/auth/me`,
-        { headers: { Authorization: authHeader } }
+      console.log("[BFF] Suppression du profil user-service avec id =", userProfile.id);
+      await firstValueFrom(
+        this.http.delete(
+          `${userServiceUrl}/api/v1/users/${userProfile.id}`,
+          { headers: { Authorization: `Bearer ${serviceToken}` } }
+        )
       );
-      await firstValueFrom(obs$);
     } catch (err) {
-      if (err instanceof AxiosError) {
-        throw new HttpException(
-          (err.response?.data as any)?.message || 'Erreur deleteAuthAccount',
-          err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR
-        );
-      }
-      throw new HttpException('Erreur réseau deleteAuthAccount', HttpStatus.INTERNAL_SERVER_ERROR);
+      const axiosErr = err as AxiosError;
+      console.error("[BFF] Erreur lors de la suppression du profil utilisateur", axiosErr?.response?.data || err);
+      throw new HttpException('Erreur lors de la suppression du profil utilisateur', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    // 5. Suppression du compte auth-service (cette fois, ça va marcher)
+    const authServiceUrl = this.config.getOrThrow<string>('AUTH_SERVICE_URL');
+    try {
+      console.log("[BFF] Suppression du compte auth-service...");
+      await firstValueFrom(
+        this.http.delete(
+          `${authServiceUrl}/api/v1/auth/me`,
+          { headers: { Authorization: authHeader } }
+        )
+      );
+    } catch (err) {
+      const axiosErr = err as AxiosError;
+      console.error("[BFF] Erreur lors de la suppression du compte auth-service", axiosErr?.response?.data || err);
+      throw new HttpException('Erreur lors de la suppression du compte auth-service', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    console.log("[BFF] Suppression totale terminée !");
   }
 }

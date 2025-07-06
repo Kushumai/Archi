@@ -68,8 +68,6 @@ export class DocumentsController {
   @Delete('me')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeAllMyDocuments(@Req() req: AuthRequest) {
-    console.log('Headers reçus document-service:', req.headers);
-    console.log('User décodé document-service:', req.user);
     await this.docs.deleteAllUserDocuments(req.user.sub);
   }
 
