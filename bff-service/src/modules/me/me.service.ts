@@ -181,11 +181,9 @@ export class MeService {
       throw new UnauthorizedException('Invalid Authorization header');
     }
 
-    // 1. Suppression des documents utilisateur
     console.log("[BFF] Suppression de tous les documents utilisateur...");
     await this.deleteAllMyDocuments(authHeader);
 
-    // 2. Récupération du userId depuis le JWT
     const token = authHeader.replace('Bearer ', '');
     const decoded = this.jwtService.decode(token) as { sub?: string };
     if (!decoded?.sub) {
@@ -194,7 +192,6 @@ export class MeService {
     }
     const userId = decoded.sub;
 
-    // 3. Récupération du profil via user-service
     const userServiceUrl = this.config.getOrThrow<string>('USER_SERVICE_URL');
     const serviceToken = this.generateServiceToken();
     let userProfile;
@@ -217,7 +214,6 @@ export class MeService {
       throw new HttpException('Profil utilisateur introuvable', HttpStatus.NOT_FOUND);
     }
 
-    // 4. Suppression du profil user-service
     try {
       console.log("[BFF] Suppression du profil user-service avec id =", userProfile.id);
       await firstValueFrom(
@@ -232,7 +228,6 @@ export class MeService {
       throw new HttpException('Erreur lors de la suppression du profil utilisateur', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // 5. Suppression du compte auth-service (cette fois, ça va marcher)
     const authServiceUrl = this.config.getOrThrow<string>('AUTH_SERVICE_URL');
     try {
       console.log("[BFF] Suppression du compte auth-service...");

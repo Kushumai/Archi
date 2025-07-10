@@ -23,8 +23,6 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Delete('me')
   async deleteOwnAccount(@NestRequest() req: ExpressRequest) {
-    console.log('DELETE /me headers:', req.headers)
-    console.log('DELETE /me req.user:', (req as any).user)
     await this.authService.deleteUserAccount((req as any).user.sub)
     return { message: 'Compte supprimé' }
   }
