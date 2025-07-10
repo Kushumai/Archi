@@ -19,7 +19,7 @@ services:
       - archi_net
 
   frontend:
-    image: ghcr.io/kushumai/archi/frontend:latest 
+    image: ghcr.io/kushumai/archi/frontend:latest
     env_file:
       - ./frontend/.env
     command: npm run start
@@ -39,6 +39,8 @@ services:
     env_file:
       - ./auth-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    depends_on:
+      - auth_postgres
     networks:
       - archi_net
 
@@ -47,6 +49,8 @@ services:
     env_file:
       - ./user-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    depends_on:
+      - user_postgres
     networks:
       - archi_net
 
@@ -55,6 +59,8 @@ services:
     env_file:
       - ./document-service/.env
     command: sh -c "npx prisma migrate deploy && node dist/main.js"
+    depends_on:
+      - document_postgres
     networks:
       - archi_net
 
@@ -77,14 +83,16 @@ services:
     image: postgres:15
     container_name: auth_postgres
     restart: always
+    env_file:
+      - ./auth-service/.env
     environment:
-      POSTGRES_USER: ${AUTH_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${AUTH_POSTGRES_DB}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432" 
+      - "5433:5432"
     networks:
       - archi_net
 
@@ -92,14 +100,16 @@ services:
     image: postgres:15
     container_name: user_postgres
     restart: always
+    env_file:
+      - ./user-service/.env
     environment:
-      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5434:5432" 
+      - "5434:5432"
     networks:
       - archi_net
 
@@ -107,14 +117,16 @@ services:
     image: postgres:15
     container_name: document_postgres
     restart: always
+    env_file:
+      - ./document-service/.env
     environment:
-      POSTGRES_USER: ${DOCUMENT_POSTGRES_USER}
-      POSTGRES_PASSWORD: ${DOCUMENT_POSTGRES_PASSWORD}
-      POSTGRES_DB: ${DOCUMENT_POSTGRES_DB}
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5435:5432" 
+      - "5435:5432"
     networks:
       - archi_net
 
