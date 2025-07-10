@@ -268,31 +268,34 @@ jobs:
             echo "${{ secrets.BFF_ENV_FILE_DEV }}" > .env
           fi
 
-      - name: List and check .env files before transfer
+      - name: Check & prepare .env files for transfer
         run: |
+          echo "📦 Preparing .env files for SCP transfer..."
+          > env_files_to_send.txt
+
           for service in frontend auth-service user-service document-service bff-service; do
-            if [ -f ./$service/.env ]; then
-              echo "$service/.env exists and has size $(stat -c%s ./$service/.env) bytes"
-              head -5 ./$service/.env || true
+            env_file="./$service/.env"
+
+            if [ -f "$env_file" ]; then
+              size=$(stat -c%s "$env_file")
+              echo "$env_file exists – $size bytes"
+              head -5 "$env_file" || true
+
+              if [ "$size" -gt 0 ]; then
+                echo "$env_file" >> env_files_to_send.txt
+              else
+                echo "$env_file is empty – removed to avoid SCP failure"
+                rm -f "$env_file"
+              fi
             else
-              echo "$service/.env is MISSING!"
+              echo "$env_file is missing"
             fi
           done
 
-      - name: Préparer la liste des fichiers .env à transférer
-        run: |
-          > env_files_to_send.txt
-          for service in frontend auth-service user-service document-service bff-service; do
-            env_file="./$service/.env"
-            if [ -s "$env_file" ]; then
-              echo "$env_file" >> env_files_to_send.txt
-            else
-              echo "⚠️  $env_file est manquant ou vide"
-              rm -f "$env_file"
-            fi
-          done
-          echo "Fichiers .env trouvés à transférer :"
+          echo ""
+          echo "Final list of .env files to transfer:"
           cat env_files_to_send.txt
+
 
       - name: Copy .env files to Pi
         uses: appleboy/scp-action@master
