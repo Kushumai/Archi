@@ -85,10 +85,6 @@ services:
     restart: always
     env_file:
       - ./auth-service/.env
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
     volumes:
       - auth_postgres_data:/var/lib/postgresql/data
     ports:
@@ -102,10 +98,6 @@ services:
     restart: always
     env_file:
       - ./user-service/.env
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
     volumes:
       - user_postgres_data:/var/lib/postgresql/data
     ports:
@@ -119,10 +111,6 @@ services:
     restart: always
     env_file:
       - ./document-service/.env
-    environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
     volumes:
       - document_postgres_data:/var/lib/postgresql/data
     ports:
