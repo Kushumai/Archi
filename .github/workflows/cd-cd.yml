@@ -286,7 +286,9 @@ jobs:
           done
 
           echo ""
-          echo "files=$(paste -sd ' ' env_files_to_send.txt)" >> $GITHUB_OUTPUT
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          cat env_files_to_send.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: debug | Print env_files_to_send.txt
         run: |
@@ -300,7 +302,8 @@ jobs:
           username: ${{ secrets.PI_USER }}
           key: ${{ secrets.PI_SSH_KEY }}
           port: ${{ secrets.PI_SSH_PORT }}
-          source: ${{ steps.get-env-list.outputs.files }}
+          source: |
+            ${{ steps.get-env-list.outputs.files }}
           target: ${{ secrets.PI_PROJECT_PATH }}
 
       - name: Deploy to Raspberry Pi via SSH
