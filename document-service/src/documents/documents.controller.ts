@@ -32,10 +32,6 @@ export class DocumentsController {
     private readonly minio: MinioConfigService,
   ) {}
 
-  // -------------------
-  // User-specific (JWT user-token)
-  // -------------------
-
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async findMyDocuments(
@@ -95,11 +91,6 @@ export class DocumentsController {
   ) {
     await this.docs.remove(req.user.sub, id);
   }
-
-
-  // -------------------
-  // Admin / service-to-service (service-token)
-  // -------------------
 
   @UseGuards(ServiceAuthGuard)
   @Post()

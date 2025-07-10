@@ -1,7 +1,5 @@
-// src/__tests__/components/organisms/Header.unit.test.tsx
 import { render, screen } from "@testing-library/react";
 
-// Mock Next.js App Router hooks
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
@@ -14,7 +12,7 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
 }));
 
-// Préparer un mock dynamique de useAuth
+
 const createUseAuthMock = (isAuthenticated: boolean) => () => ({
   isAuthenticated,
   logout: jest.fn(),
@@ -24,7 +22,7 @@ const createUseAuthMock = (isAuthenticated: boolean) => () => ({
 
 describe("Header", () => {
   beforeEach(() => {
-    jest.resetModules(); // Important pour réinitialiser les mocks
+    jest.resetModules();
   });
 
   it("se render sans crash", () => {
