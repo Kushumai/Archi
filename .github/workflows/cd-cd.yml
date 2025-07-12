@@ -265,7 +265,7 @@ jobs:
           port: ${{ secrets.PI_SSH_PORT }}
           source: envs.tar.gz
           target: ${{ secrets.PI_PROJECT_PATH }}
-
+          
       - name: Deploy to Raspberry Pi via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -280,3 +280,34 @@ jobs:
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d --build
             docker image prune -af
+
+      - name: Run Prisma Migrations on Raspberry Pi
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          port: ${{ secrets.PI_SSH_PORT }}
+          script: |
+            cd ${{ secrets.PI_PROJECT_PATH }}
+        
+            echo "Waiting for auth Postgres to be ready..."
+            until docker compose exec -T auth_postgres pg_isready -U postgres; do
+              sleep 2
+            done
+            echo "Running Prisma migrate deploy for auth-service"
+            docker compose exec -T auth-service npx prisma migrate deploy
+        
+            echo "Waiting for user Postgres to be ready..."
+            until docker compose exec -T user_postgres pg_isready -U postgres; do
+              sleep 2
+            done
+            echo "Running Prisma migrate deploy for user-service"
+            docker compose exec -T user-service npx prisma migrate deploy
+        
+            echo "Waiting for document Postgres to be ready..."
+            until docker compose exec -T document_postgres pg_isready -U postgres; do
+              sleep 2
+            done
+            echo "Running Prisma migrate deploy for document-service"
+            docker compose exec -T document-service npx prisma migrate deploy
