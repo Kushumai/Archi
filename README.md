@@ -78,9 +78,15 @@ Archi/
 2. Configurer les variables d’environnement : chaque service utilise un fichier .env (non inclus) pour les clés secrètes, l’URL de la base de données, etc. Créez-les à partir des exemples (ex. .env.sample).
 3. Construire et démarrer avec Docker Compose :
    ```sh
-   docker-compose build
-   docker-compose up -d
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
    ```
+   ```sh
+   docker compose -f docker-compose.yml -f docker-compose.staging.yml up -d --build
+   ```
+   ```sh
+   docker compose -f docker-compose.yml -f docker-compose.save.yml up -d --build
+   ```
+   
 4. Exécuter localement en mode développement : (optionnel) vous pouvez aussi installer les dépendances et lancer chaque service séparément pour le développement :
    - Dans chaque dossier *-service/, exécutez npm install puis npm run start:dev (aide chaude NestJS).
    - Dans frontend/, exécutez npm install puis npm run dev.
