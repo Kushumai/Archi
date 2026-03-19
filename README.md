@@ -15,8 +15,6 @@
 
 Archi est une plateforme web complète pour la gestion de dossiers de location immobilière, facilitant la communication et le partage sécurisé de documents entre locataires et propriétaires. Le projet suit une architecture modulaire multi-services : un front-end moderne (Next.js), un Backend For Frontend (BFF) central, et plusieurs microservices NestJS dédiés (authentification, gestion des utilisateurs, gestion des documents). Les services backend utilisent PostgreSQL (via Prisma ou TypeORM) pour les données métier, un stockage objet MinIO pour les documents, et communiquent entre eux via des requêtes HTTP sécurisées par JWT signés avec une clé secrète partagée. L’ensemble est conteneurisé avec Docker Compose et exposé derrière un reverse proxy NGINX. La CI/CD est prise en charge par GitHub Actions : le pipeline installe les dépendances, exécute lint, tests unitaires et d’intégration (Jest/Supertest) puis des tests end-to-end (Playwright) dans un environnement Docker isolé. Le déploiement final vise AWS (ECS/Fargate), mais le projet peut tourner localement en dev avec Docker Compose.
 
-https://monarchipi.duckdns.org/
-
 <!-- ## stack
 
 * [![Next][Next.js]][Next-url]
@@ -74,8 +72,8 @@ Archi/
 1. **Cloner le dépôt :**
 
    ```sh
-   git clone git@github.com:VotreUsername/my-app.git
-   cd my-app
+   git clone https://github.com/Kushumai/Archi.git
+   cd archi
    ```
 2. Configurer les variables d’environnement : chaque service utilise un fichier .env (non inclus) pour les clés secrètes, l’URL de la base de données, etc. Créez-les à partir des exemples (ex. .env.sample).
 3. Construire et démarrer avec Docker Compose :
