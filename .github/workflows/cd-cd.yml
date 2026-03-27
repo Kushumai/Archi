@@ -280,16 +280,6 @@ jobs:
             docker compose -f docker-compose.yml pull
             docker compose -f docker-compose.yml up -d --build
             docker image prune -af
-
-      - name: Run Prisma Migrations on Raspberry Pi
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PI_HOST }}
-          username: ${{ secrets.PI_USER }}
-          key: ${{ secrets.PI_SSH_KEY }}
-          port: ${{ secrets.PI_SSH_PORT }}
-          script: |
-            cd ${{ secrets.PI_PROJECT_PATH }}
         
             echo "Waiting for auth Postgres to be ready..."
             until docker compose exec -T auth_postgres pg_isready -U postgres; do
